@@ -3,6 +3,12 @@ logs
 *.log
 npm-debug.log*
 
+# fichiers compilés
+dist
+library
+
 # Dependency directory
 node_modules
-library
+
+# cache wapiti
+.wapitis
