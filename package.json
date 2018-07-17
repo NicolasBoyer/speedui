@@ -1,0 +1,25 @@
+{
+  "name": "speedui",
+  "version": "0.0.1",
+  "description": "Speedui permet de rapidement prototyper une webapp, soit en important le package via node, soit directement dans le fichier HTML eb utilisant les balises créées pour l'occasion ...",
+  "scripts": {
+    "transpile": "node ./scripts/transpile.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NicolasBoyer/speedui.git"
+  },
+  "keywords": [
+    "ui",
+    "rapide",
+    "prototypage",
+    "web",
+    "app"
+  ],
+  "author": "Nicolas Boyer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/NicolasBoyer/speedui/issues"
+  },
+  "homepage": "https://github.com/NicolasBoyer/speedui#readme"
+}
