@@ -1,4 +1,10 @@
 src
 .todo
-/img/logo.png
-*.psd
+.wapitis
+dist
+scripts
+tools
+ui
+tsconfig.json
+tslint.json
+wapitis.json
