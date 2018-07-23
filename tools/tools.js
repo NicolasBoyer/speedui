@@ -8,6 +8,7 @@ var tools = module.exports = {
 				console.log(stdout);
 				console.log(stderr);
 			}
+			callback();
 		});
 	}
 };
