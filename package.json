@@ -25,7 +25,7 @@
   "devDependencies": {
     "tslint": "^5.11.0",
     "typescript": "^2.9.2",
-    "wapitis": "^1.0.9"
+    "wapitis": "^1.0.12"
   },
   "main": "./library/index.js",
   "types": "./library/index.d.ts"
