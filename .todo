@@ -1,6 +1,9 @@
 Todo:
-    ☐ Verif this.left()
+    ✔ Verif this.left() -> en fait c win.left = 10 @done(18-07-24 14:03)
     ✔ pb class soulignée ... pour speedui @started(18-06-28 01:52) @done(18-07-24 09:20) @lasted(3w5d7h28m31s)
     ✔ Il manque un attribut click au button @started(18-06-29 09:26) @done(18-07-24 09:20) @lasted(3w3d23h54m4s)
     ✔ Problème Windows dans app.ts @started(18-06-29 09:26) @done(18-07-24 09:20) @lasted(3w3d23h54m20s)
-    ☐ Mettre en place lauch.json @started(18-07-13 09:04)  
+    ☐ Passer a drag event pour deplacer @started(18-07-24 13:34)
+    ☐ Finaliser le docking @started(18-07-24 13:34)
+    ☐ Finaliser les possibilités de stylage @started(18-07-24 13:34)
+    ☐ Faire les autres composants @started(18-07-24 13:34)

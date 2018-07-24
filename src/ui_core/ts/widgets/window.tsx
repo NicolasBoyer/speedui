@@ -326,11 +326,11 @@ export default class Window extends Component {
         }, true);
     }
 
-    attributeChangedCallback(attrName: string, oldVal: any, newVal: any) {
-        // An attribute was added, removed, updated, or replaced.
-        // Also called for initial values when an element is created by the parser, or upgraded.
-        // Note: only attributes listed in the observedAttributes property will receive this callback.
-    }
+    // attributeChangedCallback(attrName: string, oldVal: any, newVal: any) {
+    //     // An attribute was added, removed, updated, or replaced.
+    //     // Also called for initial values when an element is created by the parser, or upgraded.
+    //     // Note: only attributes listed in the observedAttributes property will receive this callback.
+    // }
 
     destroy() {
         if (this) {
@@ -479,14 +479,14 @@ export default class Window extends Component {
         this.addEventListener("contextmenu", (event: PointerEvent) => event.preventDefault(), true);
         this.addEventListener("mousedown", this._windowClicked, true);
         this._titleElement.addEventListener("mousedown", this._titleClicked, true);
-        this._titleElement.addEventListener("dblclick", (event: MouseEvent) => this.maximize(), true);
+        this._titleElement.addEventListener("dblclick", () => this.maximize(), true);
         window.addEventListener("resize", () => {
             if (this.center) {
                 this.center = true;
             }
         }, true);
-        document.addEventListener("mouseup", (event: MouseEvent) => {
-            this._mouseUp(event);
+        document.addEventListener("mouseup", () => {
+            this._mouseUp();
             document.removeEventListener("mousemove", this._drag, true);
             document.removeEventListener("mousemove", this._resize, true);
         }, true);
@@ -495,7 +495,7 @@ export default class Window extends Component {
     protected _windowClicked = (event: MouseEvent) => {
         if (event.which === 1) {
             DOM.dispatchEvent("windowClicked", this);
-            this._startResize(event);
+            this._startResize();
             document.addEventListener("mousemove", this._resize, true);
         }
         event.preventDefault();
@@ -510,13 +510,13 @@ export default class Window extends Component {
         event.preventDefault();
     }
 
-    protected _mouseUp = (event: MouseEvent) => {
+    protected _mouseUp = () => {
         this._isDragging = false;
         this._isResizing = false;
     }
 
     // Resizing
-    protected _startResize(event: MouseEvent) {
+    protected _startResize() {
         if (!this.resizable || (!this._isOnEdge.top && !this._isOnEdge.bottom
             && !this._isOnEdge.left && !this._isOnEdge.right)) {
             return;

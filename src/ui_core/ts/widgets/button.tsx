@@ -77,7 +77,7 @@ export default class Button extends Component {
         this._renderElements.innerHTML = this.label !== "" ? this.label : this.title;
     }
 
-    attributeChangedCallback(attrName: string, oldVal: any, newVal: any) {
+    attributeChangedCallback(attrName: string, _oldVal: any, newVal: any) {
         if (attrName === "type" && this._icon) {
             DOM.changeIcon(this._icon, newVal);
         }
