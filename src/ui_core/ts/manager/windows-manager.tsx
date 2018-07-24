@@ -25,7 +25,7 @@ export default class WindowsManager {
                 currentWindow.detectMousePosition(event);
             }
         }, true);
-        document.addEventListener("mouseup", (event: MouseEvent) => {
+        document.addEventListener("mouseup", () => {
             this._dockWindow(true);
             this._isCurrentWindowSelected = false;
         }, true);
