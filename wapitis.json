@@ -1,0 +1,10 @@
+{
+  "srcPath": "src/",
+  "wwwPath": "src/www",
+  "distPath": "src/../dist",
+  "startFile": "app.tsx",
+  "electronStartFile": "electronStart.ts",
+  "appName": "speedui",
+  "appDesc": "Speedui permet de rapidement prototyper une webapp, soit en important le package via node, soit directement dans le fichier HTML eb utilisant les balises créées pour l'occasion ...",
+  "themeColor": "#317EFB"
+}

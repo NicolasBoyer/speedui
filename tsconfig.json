@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "target": "es2017",
+    "module": "es2015",
+    "declaration": true,
+    "outDir": "./library",
+    "moduleResolution": "node",
+    "lib": [
+      "dom",
+      "es2015",
+      "dom.iterable",
+      "scripthost"
+    ],
+    "allowJs": false,
+    "newLine": "LF",
+    "jsx": "react",
+    "jsxFactory": "JSX.createElement",
+    "removeComments": true,
+    "noEmitOnError": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "alwaysStrict": true,
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "strictPropertyInitialization": false,
+    "paths": {
+      "electron": [
+        "node_modules/electron"
+      ],
+      "*": [
+        "src/ui_core/ts/manager/*",
+        "src/ui_core/ts/widgets/*"
+      ]
+    }
+  }
+}

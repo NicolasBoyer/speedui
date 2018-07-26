@@ -1,3 +1,17 @@
-
 Todo:
-  
+    ✔ Verif this.left() -> en fait c win.left = 10 @done(18-07-24 14:03)
+    ✔ pb class soulignée ... pour speedui @started(18-06-28 01:52) @done(18-07-24 09:20) @lasted(3w5d7h28m31s)
+    ✔ Il manque un attribut click au button @started(18-06-29 09:26) @done(18-07-24 09:20) @lasted(3w3d23h54m4s)
+    ✔ Problème Windows dans app.ts @started(18-06-29 09:26) @done(18-07-24 09:20) @lasted(3w3d23h54m20s)
+    ✔ Passer a drag event pour deplacer @started(18-07-24 13:34) @done(18-07-24 23:58) @lasted(10h24m12s)
+    ☐ Finaliser le docking @started(18-07-24 13:34)
+    ☐ Finaliser les possibilités de stylage @started(18-07-24 13:34)
+    ☐ Faire les autres composants @started(18-07-24 13:34)
+    ☐ Finaliser window et button en supprimant et en intégrant ce qui y est noté @started(18-07-24 14:15)
+    ✔ Remettre en place le drag avec transform @started(18-07-24 19:28) @done(18-07-26 19:14) @lasted(1d23h46m10s)
+    ✔ Créer un manager dragManager permettant de rendre draggable ciblant tout élément ayant un draggable à true @started(18-07-24 19:24) @done(18-07-26 19:14) @lasted(1d23h50m26s)
+    ☐ Gérer le touch @started(18-07-24 19:28)
+    ☐ revoir windows manager comme dragManager @started(18-07-24 19:42)
+    ✘ dom.setattribut probablement à modifier @started(18-07-24 19:43) @cancelled(18-07-26 19:14) @wasted(1d23h31m48s)
+    ☐ eventManager resizeManager windowsManager @started(18-07-26 13:38)
+    ☐ Ajouter drag and drop au dragmanager @started(18-07-26 18:41)
