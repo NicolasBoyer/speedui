@@ -1,6 +1,9 @@
 import Button from "button";
+import DragManager from "drag-manager";
 import { Component, DOM, JSX } from "wapitis";
 import WindowsManager from "windows-manager";
+
+new WindowsManager().initEvents();
 
 interface IWindowOpts {
     [key: string]: any;
@@ -36,31 +39,23 @@ export default class Window extends Component {
     isDocked: boolean = false;
     dockedPosition: string = "";
 
-    // A revoir peut etre avec les slots
-
-    // A VIRER CAR ON FAIT CA EN APPENDCHILD //
-    protected _content: HTMLElement;
-    get content(): HTMLElement {
-        return this._content;
-    }
-    set content(content: HTMLElement) {
-        this._content.appendChild(content);
-    }
-    ///////
-
     get left(): number {
         return Number(this.getAttribute("left"));
     }
     set left(left: number) {
         this.center = false;
-        DOM.setAttribute(this, "left", String(left));
+        this.setAttribute("left", String(left));
+        this.style.transform = "translate(" + String(left) + "px," + String(this.top) + "px)";
+        this.style.removeProperty("left");
     }
     get top(): number {
         return Number(this.getAttribute("top"));
     }
     set top(top: number) {
         this.center = false;
-        DOM.setAttribute(this, "top", String(top));
+        this.setAttribute("top", String(top));
+        this.style.transform = "translate(" + String(this.left) + "px," + String(top) + "px)";
+        this.style.removeProperty("top");
     }
     get width(): number {
         return Number(this.getAttribute("width"));
@@ -112,6 +107,13 @@ export default class Window extends Component {
     }
     set draggable(isDraggable: boolean) {
         DOM.setAttribute(this, "draggable", isDraggable);
+        if (this._titleElement) {
+            if (isDraggable) {
+                DragManager.addDragToElement(this, this._titleElement);
+            } else {
+                DragManager.removeDragFromElement(this._titleElement);
+            }
+        }
     }
     get center(): boolean {
         const isCentered: any = this.getAttribute("center");
@@ -139,12 +141,9 @@ export default class Window extends Component {
     protected _isMinimizedButton: boolean = true;
     protected _isClosedButton: boolean = true;
     protected _isDockingEnabled: boolean = true;
-    protected _isDragging: boolean;
     protected _isResizing: boolean;
     protected _isMaximized: boolean;
     protected _isMinimized: boolean;
-    protected _startMouseX: number;
-    protected _startMouseY: number;
     protected _titleElement: HTMLElement;
     protected _bbox: HTMLElement;
     protected _container: HTMLElement;
@@ -299,7 +298,6 @@ export default class Window extends Component {
         this._bbox = this._renderElements.querySelector(".bbox") as HTMLElement;
         this._container = this._renderElements.querySelector(".container") as HTMLElement;
         this._titleElement = this._renderElements.querySelector(".title") as HTMLElement;
-        this._content = this._renderElements.querySelector(".content") as HTMLElement;
         this._minimizeButton = this._renderElements.querySelector(".minimize") as HTMLElement;
         this._maximizeButton = this._renderElements.querySelector(".maximize") as HTMLElement;
         this._icon = DOM.addIcon("folder_close", this._titleElement, this._titleElement.firstChild);
@@ -307,6 +305,9 @@ export default class Window extends Component {
         this._bbox.style.left = - this.margins + "px";
         this._setBboxSize();
         this._setEvents();
+        if (this.draggable) {
+            DragManager.addDragToElement(this, this._titleElement);
+        }
         DOM.dispatchEvent("windowCreated", this);
     }
 
@@ -314,7 +315,7 @@ export default class Window extends Component {
         // Called every time the element is removed from the DOM.
         // Useful for running clean up code (removing event listeners, etc.).
         this.removeEventListener("mousedown", this._windowClicked, true);
-        this._titleElement.removeEventListener("mousedown", this._titleClicked, true);
+        // this._titleElement.removeEventListener("mousedown", this._titleClicked, true);
         this._titleElement.removeEventListener("dblclick", () => {
             //
         }, true);
@@ -373,6 +374,7 @@ export default class Window extends Component {
                 if (options.mouseX && options.mouseX < (this.width / 3) * 2 && options.mouseX > this.width / 3) {
                     this.left = options.mouseX - ((this._sizeInfos.width || 0) * (options.mouseX * 100 / this.width) / 100);
                 }
+                DragManager.overrideDragElementPosition(this.left, this.top);
                 this.classList.remove("animate");
             } else {
                 this.top = this._sizeInfos.top || 0;
@@ -434,7 +436,7 @@ export default class Window extends Component {
     }
 
     detectMousePosition = (event: MouseEvent) => {
-        if (!this.resizable || event.target !== this || this._isDragging || this._isResizing) {
+        if (!this.resizable || event.target !== this || DragManager.isDragging || this._isResizing) {
             return;
         }
         const x = event.clientX - this.left;
@@ -459,9 +461,10 @@ export default class Window extends Component {
             this.minHeight = 0;
             this.left = left;
             this.top = top;
+            DragManager.overrideDragElementPosition(this.left, this.top);
             this.classList.add("docked_" + position);
         } else {
-            if (!this._isDragging) {
+            if (!DragManager.isDragging) {
                 this.top = 0;
                 this.left = 0;
             }
@@ -478,7 +481,18 @@ export default class Window extends Component {
     protected _setEvents() {
         this.addEventListener("contextmenu", (event: PointerEvent) => event.preventDefault(), true);
         this.addEventListener("mousedown", this._windowClicked, true);
-        this._titleElement.addEventListener("mousedown", this._titleClicked, true);
+        // Remove title tooltip
+        this.addEventListener("mouseover", () => {
+            this.setAttribute("data-title", this.title);
+            this.title = "";
+        }, true);
+        this.addEventListener("mouseout", () => {
+            const tempTitle = this.getAttribute("data-title");
+            if (tempTitle) {
+                this.title = tempTitle;
+            }
+            this.removeAttribute("data-title");
+        }, true);
         this._titleElement.addEventListener("dblclick", () => this.maximize(), true);
         window.addEventListener("resize", () => {
             if (this.center) {
@@ -487,31 +501,33 @@ export default class Window extends Component {
         }, true);
         document.addEventListener("mouseup", () => {
             this._mouseUp();
-            document.removeEventListener("mousemove", this._drag, true);
             document.removeEventListener("mousemove", this._resize, true);
+        }, true);
+        document.addEventListener("isDragging", (event) => {
+            const properties = (event as CustomEvent).detail;
+            if (properties.element === this) {
+                if (this._isMaximized) {
+                    this.maximize({isDragging: true, mouseX: properties.event.x});
+                }
+                this.top = properties.moveY;
+                this.left = properties.moveX;
+            }
         }, true);
     }
 
     protected _windowClicked = (event: MouseEvent) => {
         if (event.which === 1) {
             DOM.dispatchEvent("windowClicked", this);
+            if (DragManager.isDragging) {
+                return;
+            }
             this._startResize();
             document.addEventListener("mousemove", this._resize, true);
         }
         event.preventDefault();
     }
 
-    protected _titleClicked = (event: MouseEvent) => {
-        if (event.which === 1) {
-            DOM.dispatchEvent("titleClicked", this);
-            this._startDrag(event);
-            document.addEventListener("mousemove", this._drag, true);
-        }
-        event.preventDefault();
-    }
-
     protected _mouseUp = () => {
-        this._isDragging = false;
         this._isResizing = false;
     }
 
@@ -544,37 +560,8 @@ export default class Window extends Component {
             this.height = this.height - delataMouseY;
             this.top = event.clientY;
         }
+        DragManager.overrideDragElementPosition(this.left, this.top);
         this._setBboxSize();
-    }
-
-    // Dragging
-    protected _startDrag(event: MouseEvent) {
-        if (!this.draggable) {
-            return;
-        }
-        this._isDragging = true;
-        this._startMouseX = event.clientX;
-        this._startMouseY = event.clientY;
-    }
-
-    protected _drag = (event: MouseEvent) => {
-        if (!this._isDragging) {
-            return;
-        }
-        const deltaMouseX = this._startMouseX - event.clientX;
-        const delataMouseY = this._startMouseY - event.clientY;
-        // On drag seulemeny s'il y a un mouvement
-        if (deltaMouseX === 0 || delataMouseY === 0) {
-            return;
-        }
-        if (this._isMaximized) {
-            this.maximize({isDragging: true, mouseX: event.x});
-        }
-        this._startMouseX = event.clientX;
-        this._startMouseY = event.clientY;
-        this.left = this.offsetLeft - deltaMouseX;
-        this.top = this.offsetTop - delataMouseY;
-        DOM.dispatchEvent("windowIsDragging", event);
     }
 
     // Rajouter une méthode docked() public qui pourra etre appelé après création ou même en attribut a voir
@@ -678,5 +665,3 @@ export default class Window extends Component {
     // tache electron, service worker, generate www + create ts file ? + autre script si néecessaire ... jsx à prendre en compte + fin reorg + wapit / wapiti / speedui / node-flow / wag + generate wapiti.json ou - wapiti init, dev, prod - electron.ts à peut etre ressortir + pb du tsconfig + custom.d.ts à ressortir aussi + build à suppr
 
 }
-
-new WindowsManager().initEvents();

@@ -32,10 +32,10 @@ export default class WindowsManager {
         document.addEventListener("windowCreated", (event) => this.addWindow((event as CustomEvent).detail), true);
         document.addEventListener("windowClosed", (event) => this.removeWindow((event as CustomEvent).detail), true);
         document.addEventListener("windowClicked", (event) => this.setInFront((event as CustomEvent).detail), true);
-        document.addEventListener("windowIsDragging", (event) => {
+        document.addEventListener("isDragging", (event) => {
             this._isCurrentWindowSelected = true;
             this._undockCurrentWindow();
-            this._checkPossibleDocked((event as CustomEvent).detail);
+            this._checkPossibleDocked((event as CustomEvent).detail.event);
         }, true);
         // this._getWindowSize();
         // window.addEventListener("resize", () => this._getWindowSize(), true);

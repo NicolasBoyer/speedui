@@ -25,7 +25,7 @@ const win = document.body.appendChild(<Window width="600" draggable="false" resi
 // win.left = 10;
 // eventsManager.addWindow(win)
 // eventsManager.addWindow(win2)
-win.draggable = true;
+win.draggable = false;
 // console.log(win.left);
 // Sans doute revoir la mise en place des attributs
 // document.body.appendChild(<button style="position:absolute;bottom:0;" onclick={(ev: MouseEvent) => {win.resizable = true; win.visible = true; win.center = true;const test = document.body.appendChild(<ui-window width="600" center="true" draggable="true" title="Configurer les po"><div>blirp</div></ui-window>) as Window; console.log(test.id);eventsManager.addWindow(test) }}>blop</button>);
