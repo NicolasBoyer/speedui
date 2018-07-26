@@ -1,6 +1,6 @@
 {
   "name": "@nicolasboyer/speedui",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Speedui permet de rapidement prototyper une webapp, soit en important le package via node, soit directement dans le fichier HTML eb utilisant les balises créées pour l'occasion ...",
   "scripts": {
     "transpile": "node ./scripts/transpile.js"
