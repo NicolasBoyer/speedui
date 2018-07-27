@@ -15,10 +15,10 @@ export default abstract class DragManager {
     static addDragToElement(element: HTMLElement, handler: any = element) {
         handler.element = element;
         handler.transform = {x: 0, y: 0};
-        handler.addEventListener("mousedown", this._startDrag, true);
-        document.addEventListener("mouseup", () => {
-            DragManager.isDragging = false;
-            document.removeEventListener("mousemove", this._drag, true);
+        handler.addEventListener("pointerdown", this._startDrag, true);
+        document.addEventListener("pointerup", () => {
+            this.isDragging = false;
+            document.removeEventListener("pointermove", this._drag, true);
         }, true);
     }
 
@@ -30,8 +30,8 @@ export default abstract class DragManager {
      * @memberof DragManager
      */
     static removeDragFromElement(handler: any) {
-        handler.removeEventListener("mousedown", this._startDrag, true);
-        document.removeEventListener("mouseup", () => {
+        handler.removeEventListener("pointerdown", this._startDrag, true);
+        document.removeEventListener("pointerup", () => {
             //
         }, true);
     }
@@ -45,24 +45,24 @@ export default abstract class DragManager {
      * @memberof DragManager
      */
     static overrideDragElementPosition(posX: number, posY: number) {
-        DragManager.currentDragHandler.transform = {x: posX, y: posY};
+        this._currentDragHandler.transform = {x: posX, y: posY};
     }
 
-    protected static currentDragHandler: any;
+    protected static _currentDragHandler: any;
 
     /**
      * Initalise la position de l'élément lorsque le mouvement démarre
      *
      * @protected
      * @static
-     * @param {MouseEvent} event
+     * @param {PointerEvent} event
      * @returns
      * @memberof DragManager
      */
-    protected static _startDrag(event: MouseEvent) {
+    protected static _startDrag(event: PointerEvent) {
         if (event.which === 1) {
-            DragManager.currentDragHandler = this;
-            const handler = DragManager.currentDragHandler;
+            DragManager._currentDragHandler = this;
+            const handler = DragManager._currentDragHandler;
             if (!handler.element.draggable) {
                 return;
             }
@@ -70,7 +70,7 @@ export default abstract class DragManager {
             handler.startMouseX = event.clientX;
             handler.startMouseY = event.clientY;
             DOM.dispatchEvent("startDragging", this);
-            document.addEventListener("mousemove", DragManager._drag, true);
+            document.addEventListener("pointermove", DragManager._drag, true);
         }
         event.preventDefault();
     }
@@ -80,15 +80,15 @@ export default abstract class DragManager {
      *
      * @protected
      * @static
-     * @param {MouseEvent} event
+     * @param {PointerEvent} event
      * @returns
      * @memberof DragManager
      */
-    protected static _drag(event: MouseEvent) {
+    protected static _drag(event: PointerEvent) {
         if (!DragManager.isDragging) {
             return;
         }
-        const handler = DragManager.currentDragHandler;
+        const handler = DragManager._currentDragHandler;
         const deltaMouseX = handler.startMouseX - event.clientX;
         const delataMouseY = handler.startMouseY - event.clientY;
         // On drag seulement s'il y a un mouvement
