@@ -30,7 +30,7 @@
         "node_modules/electron"
       ],
       "*": [
-        "src/ui_core/ts/manager/*",
+        "src/ui_core/ts/managers/*",
         "src/ui_core/ts/widgets/*"
       ]
     }

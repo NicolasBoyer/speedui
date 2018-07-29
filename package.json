@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "Speedui permet de rapidement prototyper une webapp, soit en important le package via node, soit directement dans le fichier HTML eb utilisant les balises créées pour l'occasion ...",
   "scripts": {
-    "transpile": "node ./scripts/transpile.js"
+    "buildlibrary": "node ./scripts/buildLibrary.js"
   },
   "repository": {
     "type": "git",
