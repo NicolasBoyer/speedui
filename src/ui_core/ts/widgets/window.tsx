@@ -1,5 +1,6 @@
 import Button from "button";
 import DragManager from "drag-manager";
+import ResizeManager from "resize-manager";
 import { Component, DOM, JSX } from "wapitis";
 import WindowsManager from "windows-manager";
 
@@ -20,14 +21,6 @@ interface IWindowOpts {
     visible?: boolean;
     margins?: number;
     center?: boolean;
-}
-
-export interface IOnPosition {
-    [key: string]: any;
-    top?: boolean;
-    bottom?: boolean;
-    left?: boolean;
-    right?: boolean;
 }
 
 @Component.register("ui-window")
@@ -89,6 +82,11 @@ export default class Window extends Component {
     }
     set resizable(isResizable: boolean) {
         DOM.setAttribute(this, "resizable", isResizable);
+        if (isResizable) {
+            ResizeManager.addResizeToElement(this);
+        } else {
+            ResizeManager.removeResizeFromElement(this);
+        }
     }
     get visible(): boolean {
         return !this.classList.contains("invisible");
@@ -115,6 +113,8 @@ export default class Window extends Component {
             }
         }
     }
+
+    // A revoir peut etre avec transform
     get center(): boolean {
         const isCentered: any = this.getAttribute("center");
         return JSON.parse(isCentered);
@@ -136,12 +136,10 @@ export default class Window extends Component {
     protected set margins(margins: number) {
         DOM.setAttribute(this, "margins", String(margins));
     }
-    protected _isOnEdge: IOnPosition = {top: false, bottom: false, left: false, right: false};
     protected _isMaximizedButton: boolean = true;
     protected _isMinimizedButton: boolean = true;
     protected _isClosedButton: boolean = true;
     protected _isDockingEnabled: boolean = true;
-    protected _isResizing: boolean;
     protected _isMaximized: boolean;
     protected _isMinimized: boolean;
     protected _titleElement: HTMLElement;
@@ -291,9 +289,6 @@ export default class Window extends Component {
     }
 
     connectedCallback() {
-        // Called every time the element is inserted into the DOM.
-        // Useful for running setup code, such as fetching resources or rendering.
-        // Generally, you should try to delay work until this time.
         super.connectedCallback();
         this._bbox = this._renderElements.querySelector(".bbox") as HTMLElement;
         this._container = this._renderElements.querySelector(".container") as HTMLElement;
@@ -308,30 +303,23 @@ export default class Window extends Component {
         if (this.draggable) {
             DragManager.addDragToElement(this, this._titleElement);
         }
+        if (this.resizable) {
+            ResizeManager.addResizeToElement(this);
+        }
         DOM.dispatchEvent("windowCreated", this);
     }
 
     disconnectedCallback() {
-        // Called every time the element is removed from the DOM.
-        // Useful for running clean up code (removing event listeners, etc.).
         this.removeEventListener("mousedown", this._windowClicked, true);
-        // this._titleElement.removeEventListener("mousedown", this._titleClicked, true);
         this._titleElement.removeEventListener("dblclick", () => {
             //
         }, true);
         window.removeEventListener("resize", () => {
             //
         }, true);
-        document.removeEventListener("mouseup", () => {
-            //
-        }, true);
+        DragManager.removeDragFromElement(this._titleElement);
+        ResizeManager.removeResizeFromElement(this);
     }
-
-    // attributeChangedCallback(attrName: string, oldVal: any, newVal: any) {
-    //     // An attribute was added, removed, updated, or replaced.
-    //     // Also called for initial values when an element is created by the parser, or upgraded.
-    //     // Note: only attributes listed in the observedAttributes property will receive this callback.
-    // }
 
     destroy() {
         if (this) {
@@ -435,19 +423,6 @@ export default class Window extends Component {
         DOM.dispatchEvent("windowMinimised", this);
     }
 
-    detectMousePosition = (event: MouseEvent) => {
-        if (!this.resizable || event.target !== this || DragManager.isDragging || this._isResizing) {
-            return;
-        }
-        const x = event.clientX - this.left;
-        const y = event.clientY - this.top;
-        this._isOnEdge.top = y < 0;
-        this._isOnEdge.left = x < 0;
-        this._isOnEdge.right = x >= this.width;
-        this._isOnEdge.bottom = y >= this.height;
-        this._changeCursor();
-    }
-
     toggleDocked(isDocked: boolean, position: string = "", top: number = 0, left: number = 0, width: number = 0, height: number = 0) {
         if (!this.isDocked) {
             this._sizeInfos = {width: this.width, height: this.height, minWidth: this.minWidth, minHeight: this.minHeight};
@@ -499,10 +474,6 @@ export default class Window extends Component {
                 this.center = true;
             }
         }, true);
-        document.addEventListener("mouseup", () => {
-            this._mouseUp();
-            document.removeEventListener("mousemove", this._resize, true);
-        }, true);
         document.addEventListener("isDragging", (event) => {
             const properties = (event as CustomEvent).detail;
             if (properties.element === this) {
@@ -511,57 +482,25 @@ export default class Window extends Component {
                 }
                 this.top = properties.moveY;
                 this.left = properties.moveX;
+                DOM.dispatchEvent("windowDragging", {event: properties.event});
+            }
+        }, true);
+        document.addEventListener("isResizing", (event) => {
+            const properties = (event as CustomEvent).detail;
+            if (properties.element === this) {
+                this.top = properties.top;
+                this.left = properties.left;
+                this.width = properties.width;
+                this.height = properties.height;
+                DragManager.overrideDragElementPosition(this.left, this.top);
+                this._setBboxSize();
             }
         }, true);
     }
 
     protected _windowClicked = (event: MouseEvent) => {
-        if (event.which === 1) {
-            DOM.dispatchEvent("windowClicked", this);
-            if (DragManager.isDragging) {
-                return;
-            }
-            this._startResize();
-            document.addEventListener("mousemove", this._resize, true);
-        }
+        DOM.dispatchEvent("windowClicked", this);
         event.preventDefault();
-    }
-
-    protected _mouseUp = () => {
-        this._isResizing = false;
-    }
-
-    // Resizing
-    protected _startResize() {
-        if (!this.resizable || (!this._isOnEdge.top && !this._isOnEdge.bottom
-            && !this._isOnEdge.left && !this._isOnEdge.right)) {
-            return;
-        }
-        this._isResizing = true;
-    }
-
-    protected _resize = (event: MouseEvent) => {
-        if (!this._isResizing) {
-            return;
-        }
-        const delataMouseX = event.clientX - this.left;
-        const delataMouseY = event.clientY - this.top;
-        if (this._isOnEdge.right) {
-            this.width = Math.max(this.minWidth, delataMouseX);
-        }
-        if (this._isOnEdge.bottom) {
-            this.height = Math.max(this.minHeight, delataMouseY);
-        }
-        if (this._isOnEdge.left && (this.width > this.minWidth || delataMouseX < 0)) {
-            this.width = this.width - delataMouseX;
-            this.left = event.clientX;
-        }
-        if (this._isOnEdge.top && (this.height > this.minHeight || delataMouseY < 0)) {
-            this.height = this.height - delataMouseY;
-            this.top = event.clientY;
-        }
-        DragManager.overrideDragElementPosition(this.left, this.top);
-        this._setBboxSize();
     }
 
     // Rajouter une méthode docked() public qui pourra etre appelé après création ou même en attribut a voir
@@ -628,21 +567,6 @@ export default class Window extends Component {
     //     this._isGhostDocked[position] = true;
     // }
 
-    // Utils
-    protected _changeCursor() {
-        if (this._isOnEdge.right && this._isOnEdge.bottom || this._isOnEdge.left && this._isOnEdge.top) {
-            this.style.cursor = "nwse-resize";
-        } else if (this._isOnEdge.right && this._isOnEdge.top || this._isOnEdge.bottom && this._isOnEdge.left ) {
-            this.style.cursor = "nesw-resize";
-        } else if (this._isOnEdge.right  || this._isOnEdge.left ) {
-            this.style.cursor = "ew-resize";
-        } else if (this._isOnEdge.bottom || this._isOnEdge.top) {
-            this.style.cursor = "ns-resize";
-        } else {
-            this.style.cursor = "default";
-        }
-    }
-
     protected _setBboxSize() {
         this._bbox.style.width = this.width + this.margins * 2 + "px";
         this._bbox.style.height = this.height + this.margins * 2 + "px";
@@ -662,6 +586,6 @@ export default class Window extends Component {
     // nav.pop
     // Gérer au niveau de ui-pages
 
-    // tache electron, service worker, generate www + create ts file ? + autre script si néecessaire ... jsx à prendre en compte + fin reorg + wapit / wapiti / speedui / node-flow / wag + generate wapiti.json ou - wapiti init, dev, prod - electron.ts à peut etre ressortir + pb du tsconfig + custom.d.ts à ressortir aussi + build à suppr
+    // wapiti / speedui / node-flow
 
 }

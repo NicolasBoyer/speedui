@@ -19,12 +19,6 @@ export default class WindowsManager {
     protected _isCurrentWindowSelected: boolean = false;
 
     initEvents() {
-        document.addEventListener("mousemove", (event: MouseEvent) => {
-            const currentWindow = (event.target as Window);
-            if (this.windows[currentWindow.id]) {
-                currentWindow.detectMousePosition(event);
-            }
-        }, true);
         document.addEventListener("mouseup", () => {
             this._dockWindow(true);
             this._isCurrentWindowSelected = false;
@@ -32,7 +26,7 @@ export default class WindowsManager {
         document.addEventListener("windowCreated", (event) => this.addWindow((event as CustomEvent).detail), true);
         document.addEventListener("windowClosed", (event) => this.removeWindow((event as CustomEvent).detail), true);
         document.addEventListener("windowClicked", (event) => this.setInFront((event as CustomEvent).detail), true);
-        document.addEventListener("isDragging", (event) => {
+        document.addEventListener("windowDragging", (event) => {
             this._isCurrentWindowSelected = true;
             this._undockCurrentWindow();
             this._checkPossibleDocked((event as CustomEvent).detail.event);

@@ -1,5 +1,12 @@
 import { DOM } from "wapitis";
 
+/**
+ * Gère le déplacement d'un élément
+ *
+ * @export
+ * @abstract
+ * @class DragManager
+ */
 export default abstract class DragManager {
 
     static isDragging: boolean;
@@ -15,10 +22,10 @@ export default abstract class DragManager {
     static addDragToElement(element: HTMLElement, handler: any = element) {
         handler.element = element;
         handler.transform = {x: 0, y: 0};
-        handler.addEventListener("pointerdown", this._startDrag, true);
-        document.addEventListener("pointerup", () => {
+        handler.addEventListener("mousedown", this._startDrag, true);
+        document.addEventListener("mouseup", () => {
             this.isDragging = false;
-            document.removeEventListener("pointermove", this._drag, true);
+            document.removeEventListener("mousemove", this._drag, true);
         }, true);
     }
 
@@ -30,8 +37,8 @@ export default abstract class DragManager {
      * @memberof DragManager
      */
     static removeDragFromElement(handler: any) {
-        handler.removeEventListener("pointerdown", this._startDrag, true);
-        document.removeEventListener("pointerup", () => {
+        handler.removeEventListener("mousedown", this._startDrag, true);
+        document.removeEventListener("mouseup", () => {
             //
         }, true);
     }
@@ -45,7 +52,9 @@ export default abstract class DragManager {
      * @memberof DragManager
      */
     static overrideDragElementPosition(posX: number, posY: number) {
-        this._currentDragHandler.transform = {x: posX, y: posY};
+        if (this._currentDragHandler) {
+            this._currentDragHandler.transform = {x: posX, y: posY};
+        }
     }
 
     protected static _currentDragHandler: any;
@@ -55,11 +64,11 @@ export default abstract class DragManager {
      *
      * @protected
      * @static
-     * @param {PointerEvent} event
+     * @param {MouseEvent} event
      * @returns
      * @memberof DragManager
      */
-    protected static _startDrag(event: PointerEvent) {
+    protected static _startDrag(event: MouseEvent) {
         if (event.which === 1) {
             DragManager._currentDragHandler = this;
             const handler = DragManager._currentDragHandler;
@@ -70,7 +79,7 @@ export default abstract class DragManager {
             handler.startMouseX = event.clientX;
             handler.startMouseY = event.clientY;
             DOM.dispatchEvent("startDragging", this);
-            document.addEventListener("pointermove", DragManager._drag, true);
+            document.addEventListener("mousemove", DragManager._drag, true);
         }
         event.preventDefault();
     }
@@ -80,11 +89,11 @@ export default abstract class DragManager {
      *
      * @protected
      * @static
-     * @param {PointerEvent} event
+     * @param {MouseEvent} event
      * @returns
      * @memberof DragManager
      */
-    protected static _drag(event: PointerEvent) {
+    protected static _drag(event: MouseEvent) {
         if (!DragManager.isDragging) {
             return;
         }
