@@ -1,3 +1,4 @@
+import { PointerEvent } from "events-manager";
 import { DOM } from "wapitis";
 
 /**
@@ -22,6 +23,11 @@ export default abstract class DragManager {
     static addDragToElement(element: HTMLElement, handler: any = element) {
         handler.element = element;
         handler.transform = {x: 0, y: 0};
+        // Test ici
+        PointerEvent.add("down", handler).then((event) => {
+            // En retout ça doit etre l'event normalisé
+            console.log(event);
+        });
         handler.addEventListener("mousedown", this._startDrag, true);
         document.addEventListener("mouseup", () => {
             this.isDragging = false;
