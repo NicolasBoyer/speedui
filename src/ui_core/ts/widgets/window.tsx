@@ -77,7 +77,7 @@ export default class Window extends Component {
         DOM.setAttribute(this, "min-height", String(minHeight));
     }
     get resizable(): boolean {
-        const isResizable: any = this.getAttribute("resizable");
+        const isResizable: string | null = this.getAttribute("resizable");
         return isResizable != null ? JSON.parse(isResizable) : isResizable;
     }
     set resizable(isResizable: boolean) {
@@ -100,7 +100,7 @@ export default class Window extends Component {
         }
     }
     get draggable(): boolean {
-        const isDraggable: any = this.getAttribute("draggable");
+        const isDraggable: string | null = this.getAttribute("draggable");
         return isDraggable != null ? JSON.parse(isDraggable) : isDraggable;
     }
     set draggable(isDraggable: boolean) {
@@ -116,8 +116,8 @@ export default class Window extends Component {
 
     // A revoir peut etre avec transform
     get center(): boolean {
-        const isCentered: any = this.getAttribute("center");
-        return JSON.parse(isCentered);
+        const isCentered: string | null = this.getAttribute("center");
+        return isCentered != null ? JSON.parse(isCentered) : isCentered;
     }
     set center(isCentered: boolean) {
         DOM.setAttribute(this, "center", isCentered);

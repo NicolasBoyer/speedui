@@ -25,7 +25,7 @@ export default abstract class ResizeManager {
             this.isResizing = false;
             document.removeEventListener("mousemove", this._resize, true);
         }, true);
-        document.addEventListener("mousemove", this.detectElementEdges, true);
+        document.addEventListener("mousemove", this._detectElementEdges, true);
     }
 
     /**
@@ -121,7 +121,7 @@ export default abstract class ResizeManager {
      * @returns
      * @memberof ResizeManager
      */
-    protected static detectElementEdges(event: MouseEvent) {
+    protected static _detectElementEdges(event: MouseEvent) {
         const element = event.target as any;
         if (DragManager.isDragging || ResizeManager.isResizing || !element.resizable) {
             return;
