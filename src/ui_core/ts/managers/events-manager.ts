@@ -9,6 +9,24 @@ export interface IPointerEvent extends Event {
     pointer: boolean;
 }
 
+// let isScrolling = false;
+// let timeout = false;
+// let sDistX = 0;
+// let sDistY = 0;
+// window.addEventListener("scroll", () => {
+//     if (!isScrolling) {
+//         sDistX = window.pageXOffset;
+//         sDistY = window.pageYOffset;
+//     }
+//     isScrolling = true;
+//     clearTimeout(timeout);
+//     timeout = setTimeout(() => {
+//         isScrolling = false;
+//         // sDistX = 0;
+//         // sDistY = 0;
+//     }, 100);
+// });
+
 export class PointerEvent {
 
 // A passer dans wapitis avec une autre classe exporté event qui contiendra dispatchevent
@@ -34,9 +52,6 @@ export class PointerEvent {
         //     }, 100);
         // });
         // console.log(isScrolling)
-        window.onscroll = function(ev) {
-            console.log("scroll")
-        };
 
         if (!handler.callback) {
             handler.callback = {};
@@ -45,6 +60,9 @@ export class PointerEvent {
         const listener = this._getListener(type);
         if ("PointerEvent" in window) {
             handler.addEventListener("pointer" + type, listener, true);
+            if (handler !== document) {
+                handler.style.touchAction = "none";
+            }
         } else {
             handler.addEventListener("mouse" + type, listener, true);
             handler.addEventListener(PointerEvent._getTouchEvent(type), listener, true);
@@ -55,6 +73,9 @@ export class PointerEvent {
         const listener = this._getListener(type);
         if ("PointerEvent" in window) {
             handler.removeEventListener("pointer" + type, listener, true);
+            if (handler !== document) {
+                handler.style.touchAction = "";
+            }
         } else {
             handler.removeEventListener("mouse" + type, listener, true);
             handler.removeEventListener(PointerEvent._getTouchEvent(type), listener, true);
@@ -79,6 +100,7 @@ export class PointerEvent {
 
     protected static _pointerDown(event: Event) {
         // console.log(isScrolling)
+        console.log(event)
         const type = "down";
         const evt = PointerEvent._makePointerEvent(type, event, this);
         // (this as any).callback[type](evt);
@@ -93,7 +115,6 @@ export class PointerEvent {
     }
 
     protected static _pointerMove(event: Event) {
-        console.log(event)
         const type = "move";
         const evt = PointerEvent._makePointerEvent(type, event, this);
         // (this as any).callback[type](evt);
