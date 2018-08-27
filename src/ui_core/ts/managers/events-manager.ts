@@ -7,6 +7,7 @@ export interface IPointerEvent extends Event {
     touch: boolean;
     mouse: boolean;
     pointer: boolean;
+    touchesNumber: number;
 }
 
 // let isScrolling = false;
@@ -82,6 +83,8 @@ export class PointerEvent {
         }
     }
 
+    protected static _pointerTouches: Event[] = [];
+
     protected static _getListener(type: string) {
         switch (type) {
             case "down": return this._pointerDown;
@@ -100,9 +103,8 @@ export class PointerEvent {
 
     protected static _pointerDown(event: Event) {
         // console.log(isScrolling)
-        console.log(event)
-        const type = "down";
-        const evt = PointerEvent._makePointerEvent(type, event, this);
+        PointerEvent._pointerTouches.push(event);
+        PointerEvent._makePointerEvent("down", event, this);
         // (this as any).callback[type](evt);
         // don't maybeClick if more than one touch is active.
         // const singleFinger = evt.mouse || (evt.touch && event.touches.length === 1);
@@ -115,14 +117,17 @@ export class PointerEvent {
     }
 
     protected static _pointerMove(event: Event) {
-        const type = "move";
-        const evt = PointerEvent._makePointerEvent(type, event, this);
-        // (this as any).callback[type](evt);
+        PointerEvent._makePointerEvent("move", event, this);
     }
 
     protected static _pointerUp(event: Event) {
-        const type = "up";
-        const evt = PointerEvent._makePointerEvent(type, event, this);
+        for (let i = 0; i < PointerEvent._pointerTouches.length; i++) {
+            if ((PointerEvent._pointerTouches[i] as any).pointerId === (event as any).pointerId) {
+                PointerEvent._pointerTouches.splice(i, 1);
+                break;
+            }
+        }
+        PointerEvent._makePointerEvent("up", event, this);
         // (this as any).callback[type](evt);
     }
 
@@ -132,7 +137,7 @@ export class PointerEvent {
         event.touch = e.type.indexOf("touch") === 0;
         event.mouse = e.type.indexOf("mouse") === 0;
         event.pointer = e.type.indexOf("pointer") === 0;
-        // event.pen à gérer
+        // event.pen à gérer ajouter pressure + titlt si existe
         if (event.touch) {
             event.x = e.changedTouches[0].pageX;
             event.y = e.changedTouches[0].pageY;
@@ -143,7 +148,17 @@ export class PointerEvent {
             if (e.which) {
                 event.which = e.which;
             }
+            if (e.pressure) {
+                event.pressure = e.pressure;
+            }
+            if (e.tiltX) {
+                event.tiltX = e.tiltX;
+            }
+            if (e.tiltY) {
+                event.tiltY = e.tiltY;
+            }
         }
+        event.touchesNumber = event.mouse ? 1 : event.touch ? e.touches.length : this._pointerTouches.length ;
         event.maskedEvent = e;
         event.handler = handler;
         handler.callback[type](event as IPointerEvent);

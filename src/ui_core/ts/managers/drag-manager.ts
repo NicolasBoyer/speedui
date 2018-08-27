@@ -63,7 +63,7 @@ export default abstract class DragManager {
      * @memberof DragManager
      */
     protected static _startDrag(event: IPointerEvent) {
-        if (event.which === 1 || !event.which) {
+        if (event.which === 1 || !event.which || event.touchesNumber === 1) {
             DragManager._currentDragHandler = event.handler;
             const handler = DragManager._currentDragHandler;
             if (!handler.element.draggable) {
