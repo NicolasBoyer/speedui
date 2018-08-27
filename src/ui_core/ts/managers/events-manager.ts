@@ -59,15 +59,15 @@ export class PointerEvent {
         }
         handler.callback[type] = callback;
         const listener = this._getListener(type);
-        if ("PointerEvent" in window) {
-            handler.addEventListener("pointer" + type, listener, true);
-            if (handler !== document) {
-                handler.style.touchAction = "none";
-            }
-        } else {
+        // if ("PointerEvent" in window) {
+        //     handler.addEventListener("pointer" + type, listener, true);
+        //     if (handler !== document) {
+        //         handler.style.touchAction = "none";
+        //     }
+        // } else {
             handler.addEventListener("mouse" + type, listener, true);
             handler.addEventListener(PointerEvent._getTouchEvent(type), listener, true);
-        }
+        // }
     }
 
     static remove(type: string, handler: any = document) {
@@ -137,7 +137,6 @@ export class PointerEvent {
         event.touch = e.type.indexOf("touch") === 0;
         event.mouse = e.type.indexOf("mouse") === 0;
         event.pointer = e.type.indexOf("pointer") === 0;
-        // event.pen à gérer ajouter pressure + titlt si existe
         if (event.touch) {
             event.x = e.changedTouches[0].pageX;
             event.y = e.changedTouches[0].pageY;
