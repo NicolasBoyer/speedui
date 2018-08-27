@@ -7,7 +7,7 @@ export interface IPointerEvent extends Event {
     touch: boolean;
     mouse: boolean;
     pointer: boolean;
-    touchesNumber: number;
+    touches: number;
 }
 
 // let isScrolling = false;
@@ -158,7 +158,7 @@ export class PointerEvent {
                 event.tiltY = e.tiltY;
             }
         }
-        event.touchesNumber = event.mouse ? 1 : event.touch ? e.touches.length : this._pointerTouches.length ;
+        event.touches = event.mouse ? 1 : event.touch ? e.touches.length : this._pointerTouches.length ;
         event.maskedEvent = e;
         event.handler = handler;
         handler.callback[type](event as IPointerEvent);
