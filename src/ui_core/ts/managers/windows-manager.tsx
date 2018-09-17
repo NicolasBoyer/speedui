@@ -26,7 +26,7 @@ export default class WindowsManager {
         document.addEventListener("windowCreated", (event) => this.addWindow((event as CustomEvent).detail), true);
         document.addEventListener("windowClosed", (event) => this.removeWindow((event as CustomEvent).detail), true);
         document.addEventListener("windowClicked", (event) => this.setInFront((event as CustomEvent).detail), true);
-        document.addEventListener("windowDragging", (event) => {
+        document.addEventListener("windowPanning", (event) => {
             this._isCurrentWindowSelected = true;
             this._undockCurrentWindow();
             this._checkPossibleDocked((event as CustomEvent).detail.event);

@@ -1,5 +1,6 @@
 import Button from "button";
 import DragManager from "drag-manager";
+import { EVENTS } from "events-manager";
 import ResizeManager from "resize-manager";
 import { Component, DOM, JSX } from "wapitis";
 import WindowsManager from "windows-manager";
@@ -329,7 +330,7 @@ export default class Window extends Component {
     }
 
     // Reste dock + autres com
-    maximize(options: {removeAnimateClass?: boolean, isDragging?: boolean, mouseX?: number} = {removeAnimateClass: true}) {
+    maximize(options: {removeAnimateClass?: boolean, isPanning?: boolean, mouseX?: number} = {removeAnimateClass: true}) {
         this._isMaximized = !this._isMaximized;
         this._maximizeButton.type = this._isMaximized ? "restore" : "maximize";
         if (this._isMaximized) {
@@ -348,7 +349,7 @@ export default class Window extends Component {
                 this._setBboxSize();
             }, 150);
         } else {
-            if (options.isDragging) {
+            if (options.isPanning) {
                 this.top = 0;
                 // Si la souris est dans le premier tiers de la largeur de la fenetre
                 if (options.mouseX && options.mouseX <= this.width / 3) {
@@ -362,7 +363,7 @@ export default class Window extends Component {
                 if (options.mouseX && options.mouseX < (this.width / 3) * 2 && options.mouseX > this.width / 3) {
                     this.left = options.mouseX - ((this._sizeInfos.width || 0) * (options.mouseX * 100 / this.width) / 100);
                 }
-                DragManager.overrideDragElementPosition(this.left, this.top);
+                DragManager.overrideElementPosition(this.left, this.top);
                 this.classList.remove("animate");
             } else {
                 this.top = this._sizeInfos.top || 0;
@@ -436,7 +437,7 @@ export default class Window extends Component {
             this.minHeight = 0;
             this.left = left;
             this.top = top;
-            DragManager.overrideDragElementPosition(this.left, this.top);
+            // DragManager.overrideDragElementPosition(this.left, this.top);
             this.classList.add("docked_" + position);
         } else {
             if (!DragManager.isDragging) {
@@ -468,21 +469,55 @@ export default class Window extends Component {
             }
             this.removeAttribute("data-title");
         }, true);
-        this._titleElement.addEventListener("dblclick", () => this.maximize(), true);
+        EVENTS.PointerListener.add(EVENTS.PointerType.doubletap, () => this.maximize(), this._titleElement);
+
         window.addEventListener("resize", () => {
             if (this.center) {
                 this.center = true;
             }
         }, true);
-        document.addEventListener("isDragging", (event) => {
+
+        // test
+        let lastScale = 1;
+        let scale = 1;
+        EVENTS.PointerListener.add(EVENTS.PointerType.pinch, (event) => {
+            scale = event.scale * lastScale;
+            this.style.transform = "scale(" + scale + ")";
+        }, this);
+        document.addEventListener("pinchend", () => {
+            lastScale = scale;
+        }, true);
+
+        EVENTS.PointerListener.add(EVENTS.PointerType.mousewheel, (event) => {
+            console.log(event)
+        }, this);
+
+        /// Test de Swipe ///
+        // document.addEventListener("isSwiping", (event) => {
+        //     const properties = (event as CustomEvent).detail;
+        //     if (properties.element === this) {
+        //         this.top = properties.top;
+        //         this.left = Math.min(properties.left * properties.velocityX, 1800);
+        //     }
+        // }, true);
+        // document.addEventListener("swipeend", () => {
+        //     const properties = (event as CustomEvent).detail;
+        //     if (properties.element === this) {
+        //         this.left = 500;
+        //     }
+        // }, true);
+        ///////
+
+        document.addEventListener("isPanning", (event) => {
             const properties = (event as CustomEvent).detail;
             if (properties.element === this) {
                 if (this._isMaximized) {
-                    this.maximize({isDragging: true, mouseX: properties.event.x});
+                    this.maximize({isPanning: true, mouseX: properties.event.x});
                 }
-                this.top = properties.moveY;
-                this.left = properties.moveX;
-                DOM.dispatchEvent("windowDragging", {event: properties.event});
+                this.top = properties.top;
+                this.left = properties.left;
+                // DIspatchevent peut il être revu pour contenir direct le detail ?
+                DOM.dispatchEvent("windowPanning", {event: properties.event});
             }
         }, true);
         document.addEventListener("isResizing", (event) => {
@@ -492,7 +527,6 @@ export default class Window extends Component {
                 this.left = properties.left;
                 this.width = properties.width;
                 this.height = properties.height;
-                DragManager.overrideDragElementPosition(this.left, this.top);
                 this._setBboxSize();
             }
         }, true);
