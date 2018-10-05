@@ -50,13 +50,13 @@ export namespace EVENTS {
     // tslint:disable-next-line:max-classes-per-file
     export class PointerListener {
 
-    // A passer dans wapitis avec une autre classe exporté event qui contiendra dispatchevent
+    // TODO : A passer dans wapitis avec une autre classe exporté event qui contiendra dispatchevent
     // IMPORTANT : fin normalisation avec scroll et multi touch _=> normalement ça marche
     // bug si centré et drag + window manager ne marche plus
 
-    // Rest mise en place du touch action (à retester avec hammer) + finalisation getlistener
+    // Rest mise en place du touch action (à retester avec hammer) + finalisation rotate
 
-    // Créer un log dans DOM dans wapitis
+    // TODO : Créer un log dans DOM dans wapitis
 
         static add(type: PointerType, callback: (evt: Pointer) => void, handler: any = document, options: {once?: boolean, capture?: boolean, passive?: boolean, replaceCallback?: boolean, usePointer?: boolean} = {once: false, capture: false, passive: true, replaceCallback: false, usePointer: true}) {
             // On sauvegarde tous les callback dans le handler
@@ -84,7 +84,7 @@ export namespace EVENTS {
 
         protected static _currentHandler: HTMLElement | null;
 
-        // A passer dans DOM
+        // TODO : A passer dans DOM
         protected static generateIdFromString(str: string) {
             let hash = 0;
             if (str.length === 0) {
@@ -196,10 +196,6 @@ export namespace EVENTS {
         }
 
         protected static _pan(event: Event) {
-
-            // Finir swipe faire pinch
-            // + restest multitouch
-
             const pressEvent = PointerListener._makePointerEvent(PointerType.press, event, this);
             const startX = pressEvent.x;
             const startY = pressEvent.y;
@@ -232,33 +228,27 @@ export namespace EVENTS {
             }, {once: true, capture: false, passive: true});
         }
 
-        // Doit renvoyer un scale
         // rotate renvoie un angle ...
         protected static _pinch() {
-            // const pressEvent = PointerListener._makePointerEvent(PointerType.press, event, this);
-            // const startX = pressEvent.x;
-            // const startY = pressEvent.y;
             let isPinch = true;
             DOM.dispatchEvent("pinchstart", {});
             const _self = this;
             let startScale = 0;
             let counter = 0;
-            // let prevDiff = 0;
             function pinchMove(evt: Event) {
                 if (POINTERTOUCHES.length === 2 && isPinch) {
                     POINTERTOUCHES = (evt as TouchEvent).touches;
-                    // const touch01 = PointerListener._makePointerEvent(PointerType.press, POINTERTOUCHES[0], _self);
-                    // console.log(touch01)
-                    // const curDiff = Math.abs((POINTERTOUCHES[0] as Touch).clientX - (POINTERTOUCHES[1] as Touch).clientX);
-                    const hypot = Math.hypot(POINTERTOUCHES[0].pageX - POINTERTOUCHES[1].pageX, POINTERTOUCHES[0].pageY - POINTERTOUCHES[1].pageY);
+                    const distance = Math.hypot(POINTERTOUCHES[0].pageX - POINTERTOUCHES[1].pageX, POINTERTOUCHES[0].pageY - POINTERTOUCHES[1].pageY);
                     const pinchEvent = PointerListener._makePointerEvent(PointerType.pinch, evt, _self);
-                    const currentScale = hypot * 10 / 1300;
+                    const currentScale = distance * 10 / 1300;
                     pinchEvent.isFirst = counter === 0;
                     if (counter === 0) {
                         startScale = currentScale;
                         counter++;
                     }
                     pinchEvent.scale = currentScale / startScale;
+                    pinchEvent.x = (POINTERTOUCHES[0].pageX + POINTERTOUCHES[1].pageX) / 2;
+                    pinchEvent.y = (POINTERTOUCHES[0].pageY + POINTERTOUCHES[1].pageY) / 2;
                     PointerListener._runCallback(_self, PointerType.pinch, pinchEvent);
                 }
             }
@@ -269,29 +259,6 @@ export namespace EVENTS {
                 document.removeEventListener(PointerListener._getEvent(PointerType.move), pinchMove);
                 DOM.dispatchEvent("pinchend", {});
             }, {once: true, capture: false, passive: true});
-
-            // J'ai besoin des touch donc sans doute nécessaire de rechanger POINTERTOUCHES en array
-            // if (POINTERTOUCHES.length === 2) {
-            //     let prevDiff;
-            //     // Calcule la distance entre les deux pointeurs
-            //     let curDiff = Math.abs(evCache[0].clientX - evCache[1].clientX);
-
-            //     if (prevDiff > 0) {
-            //       if (curDiff > prevDiff) {
-            //         // La distance entre les deux pointeurs a augmenté
-            //         log("Pinch moving OUT -> Zoom in", event);
-            //         ev.target.style.background = "pink";
-            //       }
-            //       if (curDiff < prevDiff) {
-            //         // La distance entre les deux pointeurs a diminué
-            //         log("Pinch moving IN -> Zoom out", event);
-            //         ev.target.style.background = "lightblue";
-            //       }
-            //     }
-
-            //     // Met en cache la distance pour les événements suivants
-            //     prevDiff = curDiff;
-            // }
         }
 
         protected static _swipe(event: Event) {

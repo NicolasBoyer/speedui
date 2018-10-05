@@ -1,7 +1,7 @@
 import Button from "button";
-import DragManager from "drag-manager";
 import { EVENTS } from "events-manager";
-import ResizeManager from "resize-manager";
+// TODO : penser à mettre les supportype :
+import { SupportType, TransformManager } from "transform-manager";
 import { Component, DOM, JSX } from "wapitis";
 import WindowsManager from "windows-manager";
 
@@ -39,7 +39,7 @@ export default class Window extends Component {
     set left(left: number) {
         this.center = false;
         this.setAttribute("left", String(left));
-        this.style.transform = "translate(" + String(left) + "px," + String(this.top) + "px)";
+        this._transform(this.top, left, this.scale, this.rotate);
         this.style.removeProperty("left");
     }
     get top(): number {
@@ -48,8 +48,22 @@ export default class Window extends Component {
     set top(top: number) {
         this.center = false;
         this.setAttribute("top", String(top));
-        this.style.transform = "translate(" + String(this.left) + "px," + String(top) + "px)";
+        this._transform(top, this.left, this.scale, this.rotate);
         this.style.removeProperty("top");
+    }
+    get scale(): number {
+        return Number(this.getAttribute("scale"));
+    }
+    set scale(scale: number) {
+        this.setAttribute("scale", String(scale));
+        this._transform(this.top, this.left, scale, this.rotate);
+    }
+    get rotate(): number {
+        return Number(this.getAttribute("rotate"));
+    }
+    set rotate(rotate: number) {
+        this.setAttribute("rotate", String(rotate));
+        this._transform(this.top, this.left, this.scale, rotate);
     }
     get width(): number {
         return Number(this.getAttribute("width"));
@@ -84,9 +98,9 @@ export default class Window extends Component {
     set resizable(isResizable: boolean) {
         DOM.setAttribute(this, "resizable", isResizable);
         if (isResizable) {
-            ResizeManager.addResizeToElement(this);
+            TransformManager.addResizeToElement(this);
         } else {
-            ResizeManager.removeResizeFromElement(this);
+            TransformManager.removeResizeFromElement(this);
         }
     }
     get visible(): boolean {
@@ -108,9 +122,9 @@ export default class Window extends Component {
         DOM.setAttribute(this, "draggable", isDraggable);
         if (this._titleElement) {
             if (isDraggable) {
-                DragManager.addDragToElement(this, this._titleElement);
+                TransformManager.addPanToElement(this, this._titleElement);
             } else {
-                DragManager.removeDragFromElement(this._titleElement);
+                TransformManager.removePanFromElement(this._titleElement);
             }
         }
     }
@@ -165,6 +179,8 @@ export default class Window extends Component {
             {name: "min-height", value: 200},
             {name: "top", value: 0},
             {name: "left", value: 0},
+            {name: "scale", value: 1},
+            {name: "rotate", value: 0},
             {name: "visible", value: true},
             {name: "margins", value: 10},
             {name: "center", value: false, executeAtLast: true},
@@ -178,6 +194,7 @@ export default class Window extends Component {
         this.id = DOM.generateId();
     }
 
+    // Css en externe serait cool
     _style() {
         return `
         :host {
@@ -302,11 +319,13 @@ export default class Window extends Component {
         this._setBboxSize();
         this._setEvents();
         if (this.draggable) {
-            DragManager.addDragToElement(this, this._titleElement);
+            TransformManager.addPanToElement(this, this._titleElement, SupportType.all);
         }
         if (this.resizable) {
-            ResizeManager.addResizeToElement(this);
+            TransformManager.addResizeToElement(this);
         }
+        TransformManager.addZoomToElement(this);
+
         DOM.dispatchEvent("windowCreated", this);
     }
 
@@ -318,8 +337,8 @@ export default class Window extends Component {
         window.removeEventListener("resize", () => {
             //
         }, true);
-        DragManager.removeDragFromElement(this._titleElement);
-        ResizeManager.removeResizeFromElement(this);
+        TransformManager.removePanFromElement(this._titleElement);
+        TransformManager.removeResizeFromElement(this);
     }
 
     destroy() {
@@ -363,7 +382,7 @@ export default class Window extends Component {
                 if (options.mouseX && options.mouseX < (this.width / 3) * 2 && options.mouseX > this.width / 3) {
                     this.left = options.mouseX - ((this._sizeInfos.width || 0) * (options.mouseX * 100 / this.width) / 100);
                 }
-                DragManager.overrideElementPosition(this.left, this.top);
+                TransformManager.overrideElementDraggingPosition(this.left, this.top);
                 this.classList.remove("animate");
             } else {
                 this.top = this._sizeInfos.top || 0;
@@ -440,7 +459,7 @@ export default class Window extends Component {
             // DragManager.overrideDragElementPosition(this.left, this.top);
             this.classList.add("docked_" + position);
         } else {
-            if (!DragManager.isDragging) {
+            if (!TransformManager.isDragging) {
                 this.top = 0;
                 this.left = 0;
             }
@@ -470,6 +489,7 @@ export default class Window extends Component {
             this.removeAttribute("data-title");
         }, true);
         EVENTS.PointerListener.add(EVENTS.PointerType.doubletap, () => this.maximize(), this._titleElement);
+        // EVENTS.PointerListener.add(EVENTS.PointerType.doubletap, () => this.scale = 1, this);
 
         window.addEventListener("resize", () => {
             if (this.center) {
@@ -477,20 +497,15 @@ export default class Window extends Component {
             }
         }, true);
 
-        // test
-        let lastScale = 1;
-        let scale = 1;
-        EVENTS.PointerListener.add(EVENTS.PointerType.pinch, (event) => {
-            scale = event.scale * lastScale;
-            this.style.transform = "scale(" + scale + ")";
-        }, this);
-        document.addEventListener("pinchend", () => {
-            lastScale = scale;
+        // Test de Zoom ///
+        document.addEventListener("isZooming", (event) => {
+            const properties = (event as CustomEvent).detail;
+            if (properties.element === this) {
+                this.top = properties.top;
+                this.left = properties.left;
+                this.scale = properties.scale;
+            }
         }, true);
-
-        EVENTS.PointerListener.add(EVENTS.PointerType.mousewheel, (event) => {
-            console.log(event)
-        }, this);
 
         /// Test de Swipe ///
         // document.addEventListener("isSwiping", (event) => {
@@ -506,7 +521,6 @@ export default class Window extends Component {
         //         this.left = 500;
         //     }
         // }, true);
-        ///////
 
         document.addEventListener("isPanning", (event) => {
             const properties = (event as CustomEvent).detail;
@@ -530,6 +544,12 @@ export default class Window extends Component {
                 this._setBboxSize();
             }
         }, true);
+    }
+
+    // TODO : A PASSER DANS DOM !
+    protected _transform(top: number, left: number, scale: number, rotate: number) {
+        const transform2d =   "scale(" + scale + ", " + scale + ") " + "translate(" + left + "px," + top + "px)";
+        this.style.transform = transform2d;
     }
 
     protected _windowClicked = (event: MouseEvent) => {
