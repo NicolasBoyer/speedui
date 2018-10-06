@@ -29,6 +29,6 @@
   "main": "./library/index.js",
   "types": "./library/index.d.ts",
   "dependencies": {
-    "typescript": "^3.0.3"
+    "typescript": "^3.1.1"
   }
 }
