@@ -90,7 +90,7 @@ export abstract class TransformManager {
      * @static
      * @param {HTMLElement} element
      * @param {*} [handler=element]
-     * @param {{ maxZoom?: number, minZoom?: number }} [options={ maxZoom: 4, minZoom: 0.3, supportType : SupportType.all }]
+     * @param {{ maxZoom?: number, minZoom?: number, supportType?: SupportType }} [options={ maxZoom: 4, minZoom: 0.3, supportType : SupportType.all }]
      * @memberof TransformManager
      */
     static addZoomToElement(element: HTMLElement, handler: any = element, options: { maxZoom?: number, minZoom?: number, supportType?: SupportType } = { maxZoom: 4, minZoom: 0.3, supportType : SupportType.all }) {
@@ -146,6 +146,34 @@ export abstract class TransformManager {
         element.removeEventListener("mousedown", this._startResize, false);
         document.removeEventListener("mouseup", this._stopResize, false);
         document.removeEventListener("mousemove", this._detectElementEdges, false);
+    }
+
+    /**
+     * Permet d'ajouter un rotate sur l'élément element en cliquant sur le handler
+     *
+     * @static
+     * @param {HTMLElement} element
+     * @param {*} [handler=element]
+     * @param {{ supportType?: SupportType }} [options={ supportType : SupportType.all }]
+     * @memberof TransformManager
+     */
+    static addRotateToElement(element: HTMLElement, handler: any = element, options: { supportType?: SupportType } = { supportType : SupportType.all }) {
+        handler.element = element;
+        handler.options = options;
+        element.style.transformOrigin = "0% 0%";
+        EVENTS.PointerListener.add(EVENTS.PointerType.rotate, this._rotate, handler);
+    }
+
+    /**
+     * Supprime la possibilité de rotate sur l'élément avec lequel le handler a été déclaré
+     *
+     * @static
+     * @param {*} handler
+     * @memberof TransformManager
+     */
+    static removeRotateFromElement(handler: any) {
+        handler.element.style.transformOrigin = "";
+        EVENTS.PointerListener.remove(EVENTS.PointerType.rotate, this._rotate, handler);
     }
 
     /**
@@ -462,6 +490,66 @@ export abstract class TransformManager {
         } else {
             element.style.cursor = "default";
         }
+    }
+
+    protected static _rotate(event: EVENTS.Pointer) {
+        const handler = event.handler;
+        const element = handler.element;
+        const options = handler.options;
+        let left;
+        let top;
+        let angle;
+        if (event.touch) {
+            //
+            // left = 0;
+            // top = 0;
+            // angle = event.angle;
+        } else {
+            const boundingRect = handler.element.getBoundingClientRect();
+            // Essayer avec initx
+            left = boundingRect.left + (boundingRect.width / 2);
+            top = boundingRect.top + (boundingRect.height / 2);
+            angle = event.angle;
+        }
+        DOM.dispatchEvent("isRotating", {
+            angle,
+            element: handler.element,
+            event,
+            left,
+            top,
+        });
+        // if (event.isFirst) {
+        //     const elementBoundingRect = handler.element.getBoundingClientRect();
+        //     handler.offset.x = -elementBoundingRect.left;
+        //     handler.offset.y = -elementBoundingRect.top;
+        //     handler.lastScale = 1;
+        //     handler.nthZoom = 0;
+        // } else {
+        //     const touchCenter = { x: event.x, y: event.y };
+        //     let scale = event.scale / handler.lastScale;
+        //     handler.lastScale = event.scale;
+        //     // On utilise pas les premiers événements car ils sont imprécis
+        //     handler.nthZoom += 1;
+        //     if (handler.nthZoom > 3) {
+        //         const oldZoomFactor = handler.zoomFactor;
+        //         handler.zoomFactor *= scale;
+        //         handler.zoomFactor = Math.min(handler.options.maxZoom, Math.max(handler.zoomFactor, handler.options.minZoom));
+        //         // Met à l'échelle le facteur de zoom par rapport à l'état actuel
+        //         scale = handler.zoomFactor / oldZoomFactor;
+        //         handler.offset = {
+        //             x: handler.offset.x + ((scale - 1) * (touchCenter.x + handler.offset.x) - (touchCenter.x - handler.lastZoomCenter.x)),
+        //             y: handler.offset.y + ((scale - 1) * (touchCenter.y + handler.offset.y) - (touchCenter.y - handler.lastZoomCenter.y)),
+        //         };
+        //     }
+        //     handler.lastZoomCenter = touchCenter;
+        //     DOM.dispatchEvent("isZooming", {
+        //         element: handler.element,
+        //         event,
+        //         left: -handler.offset.x / handler.zoomFactor,
+        //         scale: handler.zoomFactor,
+        //         top: -handler.offset.y / handler.zoomFactor,
+        //     });
+        // }
     }
 
 }

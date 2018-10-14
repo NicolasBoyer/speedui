@@ -111,6 +111,7 @@ export namespace EVENTS {
                 case PointerType.pressup: return this._pressup;
                 case PointerType.move: return this._move;
                 case PointerType.pinch: return this._pinch;
+                case PointerType.rotate: return this._rotate;
                 case PointerType.pan: return this._pan;
                 case PointerType.swipe: return this._swipe;
             }
@@ -129,11 +130,11 @@ export namespace EVENTS {
                 case PointerType.swipe:
                 case PointerType.pan:
                 case PointerType.pinch:
+                case PointerType.rotate:
                     return ISPOINTEREVENT && usePointer ? "pointerdown" : ISTOUCHEVENT ? "touchstart" : "mousedown";
                 case PointerType.pressup:
                     return ISPOINTEREVENT && usePointer ? "pointerup" : ISTOUCHEVENT ? "touchend" : "mouseup";
                 case PointerType.move:
-                case PointerType.rotate:
                     return ISPOINTEREVENT && usePointer ? "pointermove" : ISTOUCHEVENT ? "touchmove" : "mousemove";
                 default:
                     return "";
@@ -228,7 +229,6 @@ export namespace EVENTS {
             }, {once: true, capture: false, passive: true});
         }
 
-        // rotate renvoie un angle ...
         protected static _pinch() {
             let isPinch = true;
             DOM.dispatchEvent("pinchstart", {});
@@ -258,6 +258,57 @@ export namespace EVENTS {
                 counter = 0;
                 document.removeEventListener(PointerListener._getEvent(PointerType.move), pinchMove);
                 DOM.dispatchEvent("pinchend", {});
+            }, {once: true, capture: false, passive: true});
+        }
+
+        protected static _rotate(event: Event) {
+            const pressEvent = PointerListener._makePointerEvent(PointerType.press, event, this);
+            const startX = pressEvent.x;
+            const startY = pressEvent.y;
+            let isRotate = true;
+            DOM.dispatchEvent("rotatestart", {});
+            const _self = this;
+            let counter = 0;
+            pressEvent.handler.angle = pressEvent.handler.angle || 0;
+
+            // A changer !!!
+            const boundingRect = pressEvent.handler.getBoundingClientRect();
+            const center = { x: 0, y: 0 };
+            // const center = { x: boundingRect.left + (boundingRect.width / 2), y: boundingRect.top + (boundingRect.height / 2) };
+            const oneTouchStartAngle = (180 / Math.PI ) * Math.atan2(startY - center.y, startX - center.x);
+            let multiTouchStartAngle = 0;
+            function rotateMove(evt: Event) {
+                if (isRotate) {
+                    const rotateEvent = PointerListener._makePointerEvent(PointerType.rotate, evt, _self);
+                    if (POINTERTOUCHES.length === 2) {
+                        POINTERTOUCHES = (evt as TouchEvent).touches;
+                        const distance = { x: POINTERTOUCHES[0].pageX - POINTERTOUCHES[1].pageX, y: POINTERTOUCHES[0].pageY - POINTERTOUCHES[1].pageY };
+                        if (counter === 0) {
+                            multiTouchStartAngle = (180 / Math.PI ) * Math.atan2(distance.y, distance.x);
+                            counter++;
+                        }
+                        pressEvent.handler.rotation = ((180 / Math.PI) * Math.atan2(distance.y, distance.x)) - multiTouchStartAngle;
+                        rotateEvent.x = (POINTERTOUCHES[0].pageX + POINTERTOUCHES[1].pageX) / 2;
+                        rotateEvent.y = (POINTERTOUCHES[0].pageY + POINTERTOUCHES[1].pageY) / 2;
+                        rotateEvent.touches = POINTERTOUCHES;
+                    } else {
+                        pressEvent.handler.rotation = ((180 / Math.PI ) * Math.atan2((evt as any).clientY - center.y, (evt as any).clientX - center.x)) - oneTouchStartAngle;
+                        if (counter === 0) {
+                            counter++;
+                        }
+                    }
+                    rotateEvent.isFirst = counter === 0;
+                    rotateEvent.angle = pressEvent.handler.angle + pressEvent.handler.rotation;
+                    PointerListener._runCallback(_self, PointerType.rotate, rotateEvent);
+                }
+            }
+            document.addEventListener(PointerListener._getEvent(PointerType.move), rotateMove, {capture: false, passive: true});
+            document.addEventListener(PointerListener._getEvent(PointerType.pressup), () => {
+                pressEvent.handler.angle += pressEvent.handler.rotation;
+                pressEvent.handler.rotation = 0;
+                isRotate = false;
+                document.removeEventListener(PointerListener._getEvent(PointerType.move), rotateMove);
+                DOM.dispatchEvent("rotateend", {});
             }, {once: true, capture: false, passive: true});
         }
 

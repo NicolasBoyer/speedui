@@ -62,8 +62,11 @@ export default class Window extends Component {
         return Number(this.getAttribute("rotate"));
     }
     set rotate(rotate: number) {
+        this.center = false;
         this.setAttribute("rotate", String(rotate));
         this._transform(this.top, this.left, this.scale, rotate);
+        this.style.removeProperty("top");
+        this.style.removeProperty("left");
     }
     get width(): number {
         return Number(this.getAttribute("width"));
@@ -324,7 +327,8 @@ export default class Window extends Component {
         if (this.resizable) {
             TransformManager.addResizeToElement(this);
         }
-        TransformManager.addZoomToElement(this);
+        // TransformManager.addZoomToElement(this);
+        TransformManager.addRotateToElement(this);
 
         DOM.dispatchEvent("windowCreated", this);
     }
@@ -497,15 +501,25 @@ export default class Window extends Component {
             }
         }, true);
 
-        // Test de Zoom ///
-        document.addEventListener("isZooming", (event) => {
+        // Test du rotate ///
+        document.addEventListener("isRotating", (event) => {
             const properties = (event as CustomEvent).detail;
             if (properties.element === this) {
                 this.top = properties.top;
                 this.left = properties.left;
-                this.scale = properties.scale;
+                this.rotate = properties.angle;
             }
         }, true);
+
+        // Test de Zoom ///
+        // document.addEventListener("isZooming", (event) => {
+        //     const properties = (event as CustomEvent).detail;
+        //     if (properties.element === this) {
+        //         this.top = properties.top;
+        //         this.left = properties.left;
+        //         this.scale = properties.scale;
+        //     }
+        // }, true);
 
         /// Test de Swipe ///
         // document.addEventListener("isSwiping", (event) => {
@@ -548,7 +562,7 @@ export default class Window extends Component {
 
     // TODO : A PASSER DANS DOM !
     protected _transform(top: number, left: number, scale: number, rotate: number) {
-        const transform2d =   "scale(" + scale + ", " + scale + ") " + "translate(" + left + "px," + top + "px)";
+        const transform2d =   "scale(" + scale + ", " + scale + ") " + "translate(" + left + "px," + top + "px) " + "rotate(" + (rotate) + "deg)";
         this.style.transform = transform2d;
     }
 
