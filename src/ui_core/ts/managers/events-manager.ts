@@ -271,7 +271,7 @@ export namespace EVENTS {
             let counter = 0;
             pressEvent.handler.angle = pressEvent.handler.angle || 0;
 
-            // A changer !!!
+            // A changer !!! Supprimer le center et l'appel au handler pour le remettre sur transform
             const boundingRect = pressEvent.handler.getBoundingClientRect();
             const center = { x: 0, y: 0 };
             // const center = { x: boundingRect.left + (boundingRect.width / 2), y: boundingRect.top + (boundingRect.height / 2) };
