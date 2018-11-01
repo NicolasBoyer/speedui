@@ -505,9 +505,13 @@ export default class Window extends Component {
         document.addEventListener("isRotating", (event) => {
             const properties = (event as CustomEvent).detail;
             if (properties.element === this) {
-                this.top = properties.top;
-                this.left = properties.left;
+
+                // Ne pas renvoyer de top et left pour tourner du point gauche haut sinon exemple pour tourner au centre
+                // this.top = this.top - this.height / 2;
+                // this.left = this.left - this.width / 2;
                 this.rotate = properties.angle;
+                // this.top = properties.top;
+                // this.left = properties.left;
             }
         }, true);
 

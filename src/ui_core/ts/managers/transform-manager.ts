@@ -161,6 +161,7 @@ export abstract class TransformManager {
         handler.element = element;
         handler.options = options;
         element.style.transformOrigin = "0% 0%";
+        // document.addEventListener("rotatestart", this._startDrag as EventListenerOrEventListenerObject, {capture: true, passive: true});
         EVENTS.PointerListener.add(EVENTS.PointerType.rotate, this._rotate, handler);
     }
 
@@ -173,6 +174,7 @@ export abstract class TransformManager {
      */
     static removeRotateFromElement(handler: any) {
         handler.element.style.transformOrigin = "";
+        // document.removeEventListener("rotatestart", this._startDrag as EventListenerOrEventListenerObject, false);
         EVENTS.PointerListener.remove(EVENTS.PointerType.rotate, this._rotate, handler);
     }
 
@@ -496,28 +498,22 @@ export abstract class TransformManager {
         const handler = event.handler;
         const element = handler.element;
         const options = handler.options;
-        let left;
-        let top;
-        let angle;
-        if (event.touch) {
-            //
+        let rotateProperties: object = {};
+        // FIXME : Problème avec le drag créer une propriété isRotating
+        if (event.touches) {
+
+            // TODO : faire pour touch
+            rotateProperties = { angle: event.angle, element: handler.element, event, left: event.x, top: event.y };
+            console.log("blop")
             // left = 0;
             // top = 0;
             // angle = event.angle;
         } else {
-            const boundingRect = handler.element.getBoundingClientRect();
-            // Essayer avec initx
-            left = boundingRect.left + (boundingRect.width / 2);
-            top = boundingRect.top + (boundingRect.height / 2);
-            angle = event.angle;
+
+            // Le choix pour left et top se fait côté element ! Mais à tester
+            rotateProperties = { angle: event.angle, element: handler.element, event };
         }
-        DOM.dispatchEvent("isRotating", {
-            angle,
-            element: handler.element,
-            event,
-            left,
-            top,
-        });
+        DOM.dispatchEvent("isRotating", rotateProperties);
         // if (event.isFirst) {
         //     const elementBoundingRect = handler.element.getBoundingClientRect();
         //     handler.offset.x = -elementBoundingRect.left;

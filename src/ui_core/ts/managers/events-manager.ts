@@ -51,8 +51,9 @@ export namespace EVENTS {
     export class PointerListener {
 
     // TODO : A passer dans wapitis avec une autre classe exporté event qui contiendra dispatchevent
-    // IMPORTANT : fin normalisation avec scroll et multi touch _=> normalement ça marche
-    // bug si centré et drag + window manager ne marche plus
+
+    // TODO : fin normalisation avec scroll et multi touch _=> normalement ça marche
+    // FIXME : bug si centré et drag + window manager ne marche plus
 
     // Rest mise en place du touch action (à retester avec hammer) + finalisation rotate
 
@@ -266,12 +267,12 @@ export namespace EVENTS {
             const startX = pressEvent.x;
             const startY = pressEvent.y;
             let isRotate = true;
-            DOM.dispatchEvent("rotatestart", {});
+            DOM.dispatchEvent("rotatestart", {PointerEvent: pressEvent});
             const _self = this;
             let counter = 0;
             pressEvent.handler.angle = pressEvent.handler.angle || 0;
 
-            // A changer !!! Supprimer le center et l'appel au handler pour le remettre sur transform
+            // TODO : A changer !!! Supprimer le center et l'appel au handler pour le remettre sur transform
             const boundingRect = pressEvent.handler.getBoundingClientRect();
             const center = { x: 0, y: 0 };
             // const center = { x: boundingRect.left + (boundingRect.width / 2), y: boundingRect.top + (boundingRect.height / 2) };
@@ -280,7 +281,9 @@ export namespace EVENTS {
             function rotateMove(evt: Event) {
                 if (isRotate) {
                     const rotateEvent = PointerListener._makePointerEvent(PointerType.rotate, evt, _self);
-                    if (POINTERTOUCHES.length === 2) {
+                    // if (POINTERTOUCHES.length === 2) {
+                        // FIXME : ça ne marche plus avec le mobile
+                    if (ISTOUCHEVENT && POINTERTOUCHES.length === 2) {
                         POINTERTOUCHES = (evt as TouchEvent).touches;
                         const distance = { x: POINTERTOUCHES[0].pageX - POINTERTOUCHES[1].pageX, y: POINTERTOUCHES[0].pageY - POINTERTOUCHES[1].pageY };
                         if (counter === 0) {
@@ -290,7 +293,6 @@ export namespace EVENTS {
                         pressEvent.handler.rotation = ((180 / Math.PI) * Math.atan2(distance.y, distance.x)) - multiTouchStartAngle;
                         rotateEvent.x = (POINTERTOUCHES[0].pageX + POINTERTOUCHES[1].pageX) / 2;
                         rotateEvent.y = (POINTERTOUCHES[0].pageY + POINTERTOUCHES[1].pageY) / 2;
-                        rotateEvent.touches = POINTERTOUCHES;
                     } else {
                         pressEvent.handler.rotation = ((180 / Math.PI ) * Math.atan2((evt as any).clientY - center.y, (evt as any).clientX - center.x)) - oneTouchStartAngle;
                         if (counter === 0) {
@@ -300,9 +302,11 @@ export namespace EVENTS {
                     rotateEvent.isFirst = counter === 0;
                     rotateEvent.angle = pressEvent.handler.angle + pressEvent.handler.rotation;
                     PointerListener._runCallback(_self, PointerType.rotate, rotateEvent);
+                    // pressEvent.handler.style.transform = "translate(" + rotateEvent.x + "px," + rotateEvent.y + "px) " + "rotate(" + (rotateEvent.angle) + "deg)";
                 }
             }
-            document.addEventListener(PointerListener._getEvent(PointerType.move), rotateMove, {capture: false, passive: true});
+            document.addEventListener("touchmove", rotateMove, {capture: false, passive: true});
+            document.addEventListener("mousemove", rotateMove, {capture: false, passive: true});
             document.addEventListener(PointerListener._getEvent(PointerType.pressup), () => {
                 pressEvent.handler.angle += pressEvent.handler.rotation;
                 pressEvent.handler.rotation = 0;
