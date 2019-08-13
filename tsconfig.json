@@ -31,7 +31,8 @@
       ],
       "*": [
         "src/ui_core/ts/managers/*",
-        "src/ui_core/ts/widgets/*"
+        "src/ui_core/ts/widgets/*",
+        "src/test/whisky/*"
       ]
     }
   }

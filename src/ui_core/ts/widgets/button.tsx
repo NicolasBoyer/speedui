@@ -65,7 +65,7 @@ export default class Button extends Component {
 
     _render() {
         return (
-            <span></span>
+            <span>{this.label !== "" ? this.label : this.title}</span>
         );
     }
 
@@ -74,7 +74,6 @@ export default class Button extends Component {
         if (this.type) {
             this._icon = DOM.addIcon(this.type, this._renderElements.parentNode as HTMLElement, this._renderElements);
         }
-        this._renderElements.innerHTML = this.label !== "" ? this.label : this.title;
     }
 
     attributeChangedCallback(attrName: string, _oldVal: any, newVal: any) {

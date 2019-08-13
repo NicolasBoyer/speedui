@@ -43,8 +43,16 @@ ui-window.docked_left {
     transition: all 0.15s ease;
 }
 
+.animateFade {
+    transition: opacity 0.25s ease;
+}
+
 .fadeout {
     opacity: 0;
+}
+
+.fadein {
+    opacity: 1;
 }
 
 .ghostWindow {
@@ -53,4 +61,13 @@ ui-window.docked_left {
     border : 1px solid rgba(256, 256, 256, 0.25);
     position : absolute;
     box-shadow: 0 0 20px #444;
+}
+
+ui-page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
 }

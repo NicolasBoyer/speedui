@@ -83,6 +83,10 @@ export namespace EVENTS {
             }
         }
 
+        static getEventListeners(handler: any) {
+            return handler.callback;
+        }
+
         protected static _currentHandler: HTMLElement | null;
 
         // TODO : A passer dans DOM

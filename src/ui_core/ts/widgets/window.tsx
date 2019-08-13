@@ -1,200 +1,202 @@
-import Button from "button";
-import { EVENTS } from "events-manager";
+import Button from 'button'
+import { EVENTS } from 'events-manager'
 // TODO : penser à mettre les supportype :
-import { SupportType, TransformManager } from "transform-manager";
-import { Component, DOM, JSX } from "wapitis";
-import WindowsManager from "windows-manager";
+import { SupportType, TransformManager } from 'transform-manager'
+import { Component, DOM, JSX } from 'wapitis'
+import WindowsManager from 'windows-manager'
 
-new WindowsManager().initEvents();
+new WindowsManager().initEvents()
 
 interface IWindowOpts {
-    [key: string]: any;
-    title?: string;
-    left?: number;
-    top?: number;
-    width?: number;
-    minWidth?: number;
-    height?: number;
-    minHeight?: number;
-    className?: string;
-    draggable?: boolean;
-    resizable?: boolean;
-    visible?: boolean;
-    margins?: number;
-    center?: boolean;
+    [key: string]: any
+    title?: string
+    left?: number
+    top?: number
+    width?: number
+    minWidth?: number
+    height?: number
+    minHeight?: number
+    className?: string
+    draggable?: boolean
+    resizable?: boolean
+    visible?: boolean
+    margins?: number
+    center?: boolean
 }
 
-@Component.register("ui-window")
+@Component.register('ui-window')
 
 export default class Window extends Component {
     // is docked left right top bottom
     // style
 
-    isDocked: boolean = false;
-    dockedPosition: string = "";
+    isDocked: boolean = false
+    dockedPosition: string = ''
 
     get left(): number {
-        return Number(this.getAttribute("left"));
+        return Number(this.getAttribute('left'))
     }
     set left(left: number) {
-        this.center = false;
-        this.setAttribute("left", String(left));
-        this._transform(this.top, left, this.scale, this.rotate);
-        this.style.removeProperty("left");
+        this.center = false
+        this.setAttribute('left', String(left))
+        this._transform(this.top, left, this.scale, this.rotate)
+        this.style.removeProperty('left')
     }
     get top(): number {
-        return Number(this.getAttribute("top"));
+        return Number(this.getAttribute('top'))
     }
     set top(top: number) {
-        this.center = false;
-        this.setAttribute("top", String(top));
-        this._transform(top, this.left, this.scale, this.rotate);
-        this.style.removeProperty("top");
+        this.center = false
+        this.setAttribute('top', String(top))
+        this._transform(top, this.left, this.scale, this.rotate)
+        this.style.removeProperty('top')
     }
     get scale(): number {
-        return Number(this.getAttribute("scale"));
+        return Number(this.getAttribute('scale'))
     }
     set scale(scale: number) {
-        this.setAttribute("scale", String(scale));
-        this._transform(this.top, this.left, scale, this.rotate);
+        this.setAttribute('scale', String(scale))
+        this._transform(this.top, this.left, scale, this.rotate)
     }
     get rotate(): number {
-        return Number(this.getAttribute("rotate"));
+        return Number(this.getAttribute('rotate'))
     }
     set rotate(rotate: number) {
-        this.center = false;
-        this.setAttribute("rotate", String(rotate));
-        this._transform(this.top, this.left, this.scale, rotate);
-        this.style.removeProperty("top");
-        this.style.removeProperty("left");
+        this.center = false
+        this.setAttribute('rotate', String(rotate))
+        this._transform(this.top, this.left, this.scale, rotate)
+        this.style.removeProperty('top')
+        this.style.removeProperty('left')
     }
     get width(): number {
-        return Number(this.getAttribute("width"));
+        return Number(this.getAttribute('width'))
     }
     set width(width: number) {
-        this.center = false;
-        DOM.setAttribute(this, "width", String(width));
+        this.center = false
+        DOM.setAttribute(this, 'width', String(width))
     }
     get height(): number {
-        return Number(this.getAttribute("height"));
+        return Number(this.getAttribute('height'))
     }
     set height(height: number) {
-        this.center = false;
-        DOM.setAttribute(this, "height", String(height));
+        this.center = false
+        DOM.setAttribute(this, 'height', String(height))
     }
     get minWidth(): number {
-        return Number(this.getAttribute("min-width"));
+        return Number(this.getAttribute('min-width'))
     }
     set minWidth(minWidth: number) {
-        DOM.setAttribute(this, "min-width", String(minWidth));
+        DOM.setAttribute(this, 'min-width', String(minWidth))
     }
     get minHeight(): number {
-        return Number(this.getAttribute("min-height"));
+        return Number(this.getAttribute('min-height'))
     }
     set minHeight(minHeight: number) {
-        DOM.setAttribute(this, "min-height", String(minHeight));
+        DOM.setAttribute(this, 'min-height', String(minHeight))
     }
     get resizable(): boolean {
-        const isResizable: string | null = this.getAttribute("resizable");
-        return isResizable != null ? JSON.parse(isResizable) : isResizable;
+        const isResizable: string | null = this.getAttribute('resizable')
+        return isResizable != null ? JSON.parse(isResizable) : isResizable
     }
     set resizable(isResizable: boolean) {
-        DOM.setAttribute(this, "resizable", isResizable);
+        DOM.setAttribute(this, 'resizable', isResizable)
         if (isResizable) {
-            TransformManager.addResizeToElement(this);
+            TransformManager.addResizeToElement(this)
         } else {
-            TransformManager.removeResizeFromElement(this);
+            TransformManager.removeResizeFromElement(this)
         }
     }
     get visible(): boolean {
-        return !this.classList.contains("invisible");
+        return !this.classList.contains('invisible')
     }
     set visible(isVisible: boolean) {
-        DOM.setAttribute(this, "visible", isVisible);
+        DOM.setAttribute(this, 'visible', isVisible)
         if (isVisible) {
-            this.classList.remove("invisible");
+            this.classList.remove('invisible')
         } else {
-            this.classList.add("invisible");
+            this.classList.add('invisible')
         }
     }
     get draggable(): boolean {
-        const isDraggable: string | null = this.getAttribute("draggable");
-        return isDraggable != null ? JSON.parse(isDraggable) : isDraggable;
+        const isDraggable: string | null = this.getAttribute('draggable')
+        return isDraggable != null ? JSON.parse(isDraggable) : isDraggable
     }
     set draggable(isDraggable: boolean) {
-        DOM.setAttribute(this, "draggable", isDraggable);
+        DOM.setAttribute(this, 'draggable', isDraggable)
         if (this._titleElement) {
             if (isDraggable) {
-                TransformManager.addPanToElement(this, this._titleElement);
+                TransformManager.addPanToElement(this, this._titleElement)
             } else {
-                TransformManager.removePanFromElement(this._titleElement);
+                TransformManager.removePanFromElement(this._titleElement)
             }
         }
     }
 
     // A revoir peut etre avec transform
     get center(): boolean {
-        const isCentered: string | null = this.getAttribute("center");
-        return isCentered != null ? JSON.parse(isCentered) : isCentered;
+        const isCentered: string | null = this.getAttribute('center')
+        return isCentered != null ? JSON.parse(isCentered) : isCentered
     }
     set center(isCentered: boolean) {
-        DOM.setAttribute(this, "center", isCentered);
+        DOM.setAttribute(this, 'center', isCentered)
         if (isCentered) {
-            this.style.top = "50%";
-            this.style.left = "50%";
-            const left = this.offsetLeft;
-            const top = this.offsetTop;
-            DOM.setAttribute(this, "left", String(left - this.width / 2));
-            DOM.setAttribute(this, "top", String(top - this.height / 2));
+            this.style.top = '50%'
+            this.style.left = '50%'
+            const left = this.offsetLeft
+            const top = this.offsetTop
+            DOM.setAttribute(this, 'left', String(left - this.width / 2))
+            DOM.setAttribute(this, 'top', String(top - this.height / 2))
         }
     }
     protected get margins(): number {
-        return Number(this.getAttribute("margins"));
+        return Number(this.getAttribute('margins'))
     }
     protected set margins(margins: number) {
-        DOM.setAttribute(this, "margins", String(margins));
+        DOM.setAttribute(this, 'margins', String(margins))
     }
-    protected _isMaximizedButton: boolean = true;
-    protected _isMinimizedButton: boolean = true;
-    protected _isClosedButton: boolean = true;
-    protected _isDockingEnabled: boolean = true;
-    protected _isMaximized: boolean;
-    protected _isMinimized: boolean;
-    protected _titleElement: HTMLElement;
-    protected _bbox: HTMLElement;
-    protected _container: HTMLElement;
+    protected _isMaximizedButton: boolean = true
+    protected _isMinimizedButton: boolean = true
+    protected _isClosedButton: boolean = true
+    protected _isDockingEnabled: boolean = true
+    protected _isMaximized: boolean
+    protected _isMinimized: boolean
+    protected _titleElement: HTMLElement
+    protected _bbox: HTMLElement
+    protected _container: HTMLElement
     // A supprimer
     // protected _ghost: HTMLElement;
-    protected _options: IWindowOpts;
-    protected _sizeInfos: IWindowOpts;
-    protected _maximizeButton: JSX.Element;
-    protected _minimizeButton: JSX.Element;
-    protected _icon: SVGSVGElement;
+    protected _options: IWindowOpts
+    protected _sizeInfos: IWindowOpts
+    protected _maximizeButton: JSX.Element
+    protected _minimizeButton: JSX.Element
+    protected _icon: SVGSVGElement
     // private _isGhostDocked: IOnPosition = {top: false, bottom: false, left: false, right: false};
 
     constructor(options?: IWindowOpts) {
-        super();
+        super()
         // gestion touch
         this._defaultAttributes = [
-            {name: "width", value: 800},
-            {name: "height", value: 600},
-            {name: "min-width", value: 200},
-            {name: "min-height", value: 200},
-            {name: "top", value: 0},
-            {name: "left", value: 0},
-            {name: "scale", value: 1},
-            {name: "rotate", value: 0},
-            {name: "visible", value: true},
-            {name: "margins", value: 10},
-            {name: "center", value: false, executeAtLast: true},
-        ];
+            { name: 'width', value: 800 },
+            { name: 'height', value: 600 },
+            { name: 'min-width', value: 200 },
+            { name: 'min-height', value: 200 },
+            { name: 'top', value: 0 },
+            { name: 'left', value: 0 },
+            { name: 'scale', value: 1 },
+            { name: 'rotate', value: 0 },
+            { name: 'visible', value: true },
+            { name: 'margins', value: 10 },
+            { name: 'center', value: false, executeAtLast: true },
+        ]
         if (options) {
-            this._options = options;
+            this._options = options
             if (options.title) {
-                this.title = options.title;
+                this.title = options.title
             }
         }
-        this.id = DOM.generateId();
+        this.id = DOM.generateId()
+        this.classList.add('fadeout')
+        this.classList.add('animateFade')
     }
 
     // Css en externe serait cool
@@ -283,237 +285,244 @@ export default class Window extends Component {
         .noTitle > span {
             display: none;
         }
-    `;
+    `
     }
 
     _render() {
         return (
             <div>
-                <div class="bbox"></div>
-                <div class="container">
-                    <div class="title">
+                <div class='bbox'></div>
+                <div class='container'>
+                    <div class='title'>
                         <span>{this.title}</span>
-                        <Button title="Réduire" type="minimize" class="minimize" onclick={() => this.minimize()}></Button>
-                        <Button title="Agrandir" type="maximize" class="maximize" onclick={() => this.maximize()}></Button>
-                        <Button title="Fermer" type="close" class="close" onclick={() => {
-                            this.classList.add("animate");
-                            this.classList.add("fadeout");
-                            setTimeout(() => this.destroy(), 200);
+                        <Button title='Réduire' type='minimize' class='minimize' onclick={() => this.minimize()}></Button>
+                        <Button title='Agrandir' type='maximize' class='maximize' onclick={() => this.maximize()}></Button>
+                        <Button title='Fermer' type='close' class='close' onclick={() => {
+                            this.classList.add('animate')
+                            this.classList.add('fadeout')
+                            setTimeout(() => this.destroy(), 200)
                         }}></Button>
                     </div>
-                    <div class="content">
+                    <div class='content'>
                         <slot></slot>
                     </div>
                 </div>
             </div>
-        );
+        )
     }
 
     connectedCallback() {
-        super.connectedCallback();
-        this._bbox = this._renderElements.querySelector(".bbox") as HTMLElement;
-        this._container = this._renderElements.querySelector(".container") as HTMLElement;
-        this._titleElement = this._renderElements.querySelector(".title") as HTMLElement;
-        this._minimizeButton = this._renderElements.querySelector(".minimize") as HTMLElement;
-        this._maximizeButton = this._renderElements.querySelector(".maximize") as HTMLElement;
-        this._icon = DOM.addIcon("folder_close", this._titleElement, this._titleElement.firstChild);
-        this._bbox.style.top = - this.margins + "px";
-        this._bbox.style.left = - this.margins + "px";
-        this._setBboxSize();
-        this._setEvents();
+        super.connectedCallback()
+        this.classList.add('fadein')
+        this.classList.remove('fadeout')
+        setTimeout(() => {
+            this.classList.remove('fadein')
+            this.classList.remove('animateFade')
+        }, 200)
+        this._bbox = this._renderElements.querySelector('.bbox') as HTMLElement
+        this._container = this._renderElements.querySelector('.container') as HTMLElement
+        this._titleElement = this._renderElements.querySelector('.title') as HTMLElement
+        this._minimizeButton = this._renderElements.querySelector('.minimize') as HTMLElement
+        this._maximizeButton = this._renderElements.querySelector('.maximize') as HTMLElement
+        this._icon = DOM.addIcon('folder_close', this._titleElement, this._titleElement.firstChild)
+        this._bbox.style.top = - this.margins + 'px'
+        this._bbox.style.left = - this.margins + 'px'
+        this._setBboxSize()
+        this._setEvents()
         if (this.draggable) {
-            TransformManager.addPanToElement(this, this._titleElement, SupportType.all);
+            TransformManager.addPanToElement(this, this._titleElement, SupportType.all)
         }
         if (this.resizable) {
-            TransformManager.addResizeToElement(this);
+            TransformManager.addResizeToElement(this)
         }
         // TransformManager.addZoomToElement(this);
-        TransformManager.addRotateToElement(this);
+        // TODO : a remettre pour finir rotate
+        // TransformManager.addRotateToElement(this);
 
-        DOM.dispatchEvent("windowCreated", this);
+        DOM.dispatchEvent('windowCreated', this)
     }
 
     disconnectedCallback() {
-        this.removeEventListener("mousedown", this._windowClicked, true);
-        this._titleElement.removeEventListener("dblclick", () => {
+        this.removeEventListener('mousedown', this._windowClicked, true)
+        this._titleElement.removeEventListener('dblclick', () => {
             //
-        }, true);
-        window.removeEventListener("resize", () => {
+        }, true)
+        window.removeEventListener('resize', () => {
             //
-        }, true);
-        TransformManager.removePanFromElement(this._titleElement);
-        TransformManager.removeResizeFromElement(this);
+        }, true)
+        TransformManager.removePanFromElement(this._titleElement)
+        TransformManager.removeResizeFromElement(this)
     }
 
     destroy() {
         if (this) {
-            document.body.removeChild(this);
-            DOM.dispatchEvent("windowClosed", this);
+            document.body.removeChild(this)
+            DOM.dispatchEvent('windowClosed', this)
         }
     }
 
     // Reste dock + autres com
-    maximize(options: {removeAnimateClass?: boolean, isPanning?: boolean, mouseX?: number} = {removeAnimateClass: true}) {
-        this._isMaximized = !this._isMaximized;
-        this._maximizeButton.type = this._isMaximized ? "restore" : "maximize";
+    maximize(options: { removeAnimateClass?: boolean, isPanning?: boolean, mouseX?: number } = { removeAnimateClass: true }) {
+        this._isMaximized = !this._isMaximized
+        this._maximizeButton.type = this._isMaximized ? 'restore' : 'maximize'
         if (this._isMaximized) {
             if (this._isMinimized) {
-                this.minimize(false);
+                this.minimize(false)
             }
-            this._sizeInfos = {top: this.top, left: this.left, width: this.width, height: this.height};
-            this.classList.add("animate");
-            this.top = 0;
-            this.left = 0;
-            this.style.width = "100%";
-            this.style.height = "100%";
+            this._sizeInfos = { top: this.top, left: this.left, width: this.width, height: this.height }
+            this.classList.add('animate')
+            this.top = 0
+            this.left = 0
+            this.style.width = '100%'
+            this.style.height = '100%'
             setTimeout(() => {
-                this.width = this.offsetWidth;
-                this.height = this.offsetHeight;
-                this._setBboxSize();
-            }, 150);
+                this.width = this.offsetWidth
+                this.height = this.offsetHeight
+                this._setBboxSize()
+            }, 150)
         } else {
             if (options.isPanning) {
-                this.top = 0;
+                this.top = 0
                 // Si la souris est dans le premier tiers de la largeur de la fenetre
                 if (options.mouseX && options.mouseX <= this.width / 3) {
-                    this.left = 0;
+                    this.left = 0
                 }
                 // Si la souris est dans le troisième tiers de la largeur de la fenetre
                 if (options.mouseX && options.mouseX >= (this.width / 3) * 2) {
-                    this.left = this.width - (this._sizeInfos.width || 0);
+                    this.left = this.width - (this._sizeInfos.width || 0)
                 }
                 // Si la souris est dans le deuxième tiers de la largeur de la fenetre
                 if (options.mouseX && options.mouseX < (this.width / 3) * 2 && options.mouseX > this.width / 3) {
-                    this.left = options.mouseX - ((this._sizeInfos.width || 0) * (options.mouseX * 100 / this.width) / 100);
+                    this.left = options.mouseX - ((this._sizeInfos.width || 0) * (options.mouseX * 100 / this.width) / 100)
                 }
-                TransformManager.overrideElementDraggingPosition(this.left, this.top);
-                this.classList.remove("animate");
+                TransformManager.overrideElementDraggingPosition(this.left, this.top)
+                this.classList.remove('animate')
             } else {
-                this.top = this._sizeInfos.top || 0;
-                this.left = this._sizeInfos.left || 0;
+                this.top = this._sizeInfos.top || 0
+                this.left = this._sizeInfos.left || 0
             }
-            this.width = this._sizeInfos.width || 0;
-            this.height = this._sizeInfos.height || 0;
+            this.width = this._sizeInfos.width || 0
+            this.height = this._sizeInfos.height || 0
             setTimeout(() => {
                 if (options.removeAnimateClass) {
-                    this.classList.remove("animate");
+                    this.classList.remove('animate')
                 }
-                this._setBboxSize();
-            }, 150);
+                this._setBboxSize()
+            }, 150)
         }
-        DOM.dispatchEvent("windowMaximised", this);
+        DOM.dispatchEvent('windowMaximised', this)
     }
 
     minimize(removeAnimateClass: boolean = true) {
-        this._isMinimized = !this._isMinimized;
-        this._minimizeButton.type = this._isMinimized ? "restore" : "minimize";
+        this._isMinimized = !this._isMinimized
+        this._minimizeButton.type = this._isMinimized ? 'restore' : 'minimize'
         if (this._isMinimized) {
             if (this._isMaximized) {
-                this.maximize({removeAnimateClass: false});
+                this.maximize({ removeAnimateClass: false })
             }
-            this._sizeInfos = {top: this.top, left: this.left, width: this.width, height: this.height, minWidth: this.minWidth, minHeight: this.minHeight, draggable: this.draggable, resizable: this.resizable};
-            this.classList.add("animate");
-            this.width = 168;
-            this.height = 38;
-            this.minWidth = 0;
-            this.minHeight = 0;
-            this.left = 5;
-            this.style.removeProperty("top");
-            this.style.bottom = "0";
-            this._titleElement.classList.add("noTitle");
-            this.resizable = false;
-            this.draggable = false;
+            this._sizeInfos = { top: this.top, left: this.left, width: this.width, height: this.height, minWidth: this.minWidth, minHeight: this.minHeight, draggable: this.draggable, resizable: this.resizable }
+            this.classList.add('animate')
+            this.width = 168
+            this.height = 38
+            this.minWidth = 0
+            this.minHeight = 0
+            this.left = 5
+            this.style.removeProperty('top')
+            this.style.bottom = '0'
+            this._titleElement.classList.add('noTitle')
+            this.resizable = false
+            this.draggable = false
             setTimeout(() => {
-                this.top = this.offsetTop;
-                this._setBboxSize();
-            }, 150);
+                this.top = this.offsetTop
+                this._setBboxSize()
+            }, 150)
         } else {
-            this.top = this._sizeInfos.top || 0;
-            this.left = this._sizeInfos.left || 0;
-            this.width = this._sizeInfos.width || 0;
-            this.height = this._sizeInfos.height || 0;
-            this.minWidth = this._sizeInfos.minWidth || 0;
-            this.minHeight = this._sizeInfos.minHeight || 0;
-            this.resizable = this._sizeInfos.resizable || false;
-            this.draggable = this._sizeInfos.draggable || false;
-            this._titleElement.classList.remove("noTitle");
+            this.top = this._sizeInfos.top || 0
+            this.left = this._sizeInfos.left || 0
+            this.width = this._sizeInfos.width || 0
+            this.height = this._sizeInfos.height || 0
+            this.minWidth = this._sizeInfos.minWidth || 0
+            this.minHeight = this._sizeInfos.minHeight || 0
+            this.resizable = this._sizeInfos.resizable || false
+            this.draggable = this._sizeInfos.draggable || false
+            this._titleElement.classList.remove('noTitle')
             setTimeout(() => {
                 if (removeAnimateClass) {
-                    this.classList.remove("animate");
+                    this.classList.remove('animate')
                 }
-                this._setBboxSize();
-            }, 150);
+                this._setBboxSize()
+            }, 150)
         }
-        DOM.dispatchEvent("windowMinimised", this);
+        DOM.dispatchEvent('windowMinimised', this)
     }
 
-    toggleDocked(isDocked: boolean, position: string = "", top: number = 0, left: number = 0, width: number = 0, height: number = 0) {
+    toggleDocked(isDocked: boolean, position: string = '', top: number = 0, left: number = 0, width: number = 0, height: number = 0) {
         if (!this.isDocked) {
-            this._sizeInfos = {width: this.width, height: this.height, minWidth: this.minWidth, minHeight: this.minHeight};
+            this._sizeInfos = { width: this.width, height: this.height, minWidth: this.minWidth, minHeight: this.minHeight }
         }
-        this.isDocked = isDocked;
-        this.dockedPosition = position;
+        this.isDocked = isDocked
+        this.dockedPosition = position
         if (this.isDocked) {
-            this.width = width;
-            this.height = height;
-            this.minWidth = 0;
-            this.minHeight = 0;
-            this.left = left;
-            this.top = top;
+            this.width = width
+            this.height = height
+            this.minWidth = 0
+            this.minHeight = 0
+            this.left = left
+            this.top = top
             // DragManager.overrideDragElementPosition(this.left, this.top);
-            this.classList.add("docked_" + position);
+            this.classList.add('docked_' + position)
         } else {
             if (!TransformManager.isDragging) {
-                this.top = 0;
-                this.left = 0;
+                this.top = 0
+                this.left = 0
             }
-            this.width = this._sizeInfos.width || 0;
-            this.height = this._sizeInfos.height || 0;
-            this.minWidth = this._sizeInfos.minWidth || 0;
-            this.minHeight = this._sizeInfos.minHeight || 0;
-            DOM.removeClassByPrefix(this, "docked_");
+            this.width = this._sizeInfos.width || 0
+            this.height = this._sizeInfos.height || 0
+            this.minWidth = this._sizeInfos.minWidth || 0
+            this.minHeight = this._sizeInfos.minHeight || 0
+            DOM.removeClassByPrefix(this, 'docked_')
         }
-        this._setBboxSize();
+        this._setBboxSize()
     }
 
     // Events
     protected _setEvents() {
-        this.addEventListener("contextmenu", (event: PointerEvent) => event.preventDefault(), true);
-        this.addEventListener("mousedown", this._windowClicked, true);
+        this.addEventListener('contextmenu', (event: PointerEvent) => event.preventDefault(), true)
+        this.addEventListener('mousedown', this._windowClicked, true)
         // Remove title tooltip
-        this.addEventListener("mouseover", () => {
-            this.setAttribute("data-title", this.title);
-            this.title = "";
-        }, true);
-        this.addEventListener("mouseout", () => {
-            const tempTitle = this.getAttribute("data-title");
+        this.addEventListener('mouseover', () => {
+            this.setAttribute('data-title', this.title)
+            this.title = ''
+        }, true)
+        this.addEventListener('mouseout', () => {
+            const tempTitle = this.getAttribute('data-title')
             if (tempTitle) {
-                this.title = tempTitle;
+                this.title = tempTitle
             }
-            this.removeAttribute("data-title");
-        }, true);
-        EVENTS.PointerListener.add(EVENTS.PointerType.doubletap, () => this.maximize(), this._titleElement);
+            this.removeAttribute('data-title')
+        }, true)
+        EVENTS.PointerListener.add(EVENTS.PointerType.doubletap, () => this.maximize(), this._titleElement)
         // EVENTS.PointerListener.add(EVENTS.PointerType.doubletap, () => this.scale = 1, this);
 
-        window.addEventListener("resize", () => {
+        window.addEventListener('resize', () => {
             if (this.center) {
-                this.center = true;
+                this.center = true
             }
-        }, true);
+        }, true)
 
         // Test du rotate ///
-        document.addEventListener("isRotating", (event) => {
-            const properties = (event as CustomEvent).detail;
+        document.addEventListener('isRotating', (event) => {
+            const properties = (event as CustomEvent).detail
             if (properties.element === this) {
 
                 // Ne pas renvoyer de top et left pour tourner du point gauche haut sinon exemple pour tourner au centre
                 // this.top = this.top - this.height / 2;
                 // this.left = this.left - this.width / 2;
-                this.rotate = properties.angle;
+                this.rotate = properties.angle
                 // this.top = properties.top;
                 // this.left = properties.left;
             }
-        }, true);
+        }, true)
 
         // Test de Zoom ///
         // document.addEventListener("isZooming", (event) => {
@@ -540,39 +549,40 @@ export default class Window extends Component {
         //     }
         // }, true);
 
-        document.addEventListener("isPanning", (event) => {
-            const properties = (event as CustomEvent).detail;
+        document.addEventListener('isPanning', (event) => {
+            const properties = (event as CustomEvent).detail
             if (properties.element === this) {
                 if (this._isMaximized) {
-                    this.maximize({isPanning: true, mouseX: properties.event.x});
+                    this.maximize({ isPanning: true, mouseX: properties.event.x })
                 }
-                this.top = properties.top;
-                this.left = properties.left;
+                this.top = properties.top
+                this.left = properties.left
                 // DIspatchevent peut il être revu pour contenir direct le detail ?
-                DOM.dispatchEvent("windowPanning", {event: properties.event});
+                DOM.dispatchEvent('windowPanning', { event: properties.event })
             }
-        }, true);
-        document.addEventListener("isResizing", (event) => {
-            const properties = (event as CustomEvent).detail;
+        }, true)
+        document.addEventListener('isResizing', (event) => {
+            const properties = (event as CustomEvent).detail
             if (properties.element === this) {
-                this.top = properties.top;
-                this.left = properties.left;
-                this.width = properties.width;
-                this.height = properties.height;
-                this._setBboxSize();
+                this.top = properties.top
+                this.left = properties.left
+                this.width = properties.width
+                this.height = properties.height
+                this._setBboxSize()
             }
-        }, true);
+        }, true)
     }
 
     // TODO : A PASSER DANS DOM !
     protected _transform(top: number, left: number, scale: number, rotate: number) {
-        const transform2d =   "scale(" + scale + ", " + scale + ") " + "translate(" + left + "px," + top + "px) " + "rotate(" + (rotate) + "deg)";
-        this.style.transform = transform2d;
+        const transform2d = 'scale(' + scale + ', ' + scale + ') ' + 'translate(' + left + 'px,' + top + 'px) ' + 'rotate(' + (rotate) + 'deg)'
+        this.style.transform = transform2d
     }
 
     protected _windowClicked = (event: MouseEvent) => {
-        DOM.dispatchEvent("windowClicked", this);
-        event.preventDefault();
+        DOM.dispatchEvent('windowClicked', this)
+        // TODO : suppr car impossible d'écrire dedans sinon
+        // event.preventDefault();
     }
 
     // Rajouter une méthode docked() public qui pourra etre appelé après création ou même en attribut a voir
@@ -640,8 +650,8 @@ export default class Window extends Component {
     // }
 
     protected _setBboxSize() {
-        this._bbox.style.width = this.width + this.margins * 2 + "px";
-        this._bbox.style.height = this.height + this.margins * 2 + "px";
+        this._bbox.style.width = this.width + this.margins * 2 + 'px'
+        this._bbox.style.height = this.height + this.margins * 2 + 'px'
     }
 
     // voir si besoin de dériver cette classe probablement pour créer le fenetre de conf
