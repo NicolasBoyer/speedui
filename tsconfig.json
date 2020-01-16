@@ -24,16 +24,6 @@
     "alwaysStrict": true,
     "experimentalDecorators": true,
     "baseUrl": ".",
-    "strictPropertyInitialization": false,
-    "paths": {
-      "electron": [
-        "node_modules/electron"
-      ],
-      "*": [
-        "src/ui_core/ts/managers/*",
-        "src/ui_core/ts/widgets/*",
-        "src/test/whisky/*"
-      ]
-    }
+    "strictPropertyInitialization": false
   }
 }

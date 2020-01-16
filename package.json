@@ -1,8 +1,16 @@
 {
   "name": "@nicolasboyer/speedui",
-  "version": "0.0.2",
-  "description": "Speedui permet de rapidement prototyper une webapp, soit en important le package via node, soit directement dans le fichier HTML eb utilisant les balises créées pour l'occasion ...",
+  "version": "0.0.3",
+  "description": "Speedui permet de rapidement prototyper une webapp, soit en important le package via node, soit directement dans le fichier HTML en utilisant les balises proposées",
+  "main": "./library/index.js",
+  "types": "./library/index.d.ts",
   "scripts": {
+    "init": "npx wapitis init",
+    "dev": "npx wapitis dev",
+    "prod": "npx wapitis prod",
+    "electronDev": "npx wapitis electron --dev",
+    "electronProd": "npx wapitis electron --prod",
+    "clear": "npx wapitis clear",
     "buildlibrary": "node ./scripts/buildLibrary.js"
   },
   "repository": {
@@ -23,12 +31,10 @@
   },
   "homepage": "https://github.com/NicolasBoyer/speedui#readme",
   "devDependencies": {
-    "tslint": "^5.11.0",
-    "wapitis": "^1.0.19"
+    "tslint": "^5.20.1",
+    "wapitis": "^2.0.41"
   },
-  "main": "./library/index.js",
-  "types": "./library/index.d.ts",
   "dependencies": {
-    "typescript": "^3.1.6"
+    "electron-updater": "^4.2.0"
   }
 }

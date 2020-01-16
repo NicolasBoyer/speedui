@@ -1,9 +1,6 @@
 {
     "defaultSeverity": "error",
-    "extends": [
-        "tslint:recommended"
-    ],
-    "jsRules": {},
+    "extends": ["tslint:recommended"],
     "rules": {
         "new-parens": true,
         "no-arg": true,
@@ -20,11 +17,15 @@
                 "trace"
             ]
         },
+        "trailing-comma": [true, {
+            "multiline": "never",
+            "singleline": "never"
+        }],
         "quotemark": [true, "single", "avoid-escape", "avoid-template"],
         "semicolon": [true, "never"],
         "member-access": false,
         "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
         "max-line-length": false
     },
-    "rulesDirectory": []
+    "jsRules": {}
 }
