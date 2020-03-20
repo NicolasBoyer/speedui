@@ -1,11 +1,24 @@
 {
-		"srcPath": "src/",
-		"wwwPath": "src/www",
-		"distPath": "src/../dist",
-		"startFile": "app.tsx",
-		"electronStartFile": "electronStart.ts",
-		"appName": "speedui",
-		"appDesc": "Speedui permet de rapidement prototyper une webapp, soit en important le package via node, soit directement dans le fichier HTML en utilisant les balises proposées",
-		"themeColor": "#317EFB",
-		"appleTouchIcon": "./assets/icons/apple-touch-icon.png"
-	}
+  "srcPath": "src/",
+  "wwwPath": "src/www",
+  "distPath": "src/../dist",
+  "startFile": "app.tsx",
+  "electronStartFile": "electronStart.ts",
+  "appName": "speedui",
+  "appDesc": "Speedui permet de rapidement prototyper une webapp, soit en important le package via node, soit directement dans le fichier HTML en utilisant les balises proposées",
+  "themeColor": "#317EFB",
+  "appleTouchIcon": "./assets/icons/apple-touch-icon.png",
+  "filesInfos": {
+    "mtime": {
+      "apple-touch-icon.png": "1985-10-26T08:15:00.000Z",
+      "icons-192.png": "1985-10-26T08:15:00.000Z",
+      "icons-512.png": "1985-10-26T08:15:00.000Z",
+      "icons.svg": "1985-10-26T08:15:00.000Z",
+      "about.png": "1985-10-26T08:15:00.000Z",
+      "splash.png": "1985-10-26T08:15:00.000Z"
+    }
+  },
+  "cacheVersion": {
+    "core": 2
+  }
+}

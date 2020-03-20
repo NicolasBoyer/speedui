@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import * as path from 'path'
@@ -9,9 +10,10 @@ const DEBUG = ENV === 'development'
 let win: any
 let splash: any
 
-function createWindow() {
+function createWindow(): void {
     win = new BrowserWindow({
-        show: false, webPreferences: {
+        show: false,
+        webPreferences: {
             nodeIntegration: true
         }
     })
@@ -75,7 +77,7 @@ function createWindow() {
                 {
                     label: 'Documentation',
                     click() {
-                        shell.openExternal('https://github.com/NicolasBoyer/wapitis#readme')
+                        shell.openExternal('https://nicolasboyer.github.io/wapitis/')
                     }
                 },
                 { type: 'separator' },
@@ -111,13 +113,14 @@ function createWindow() {
         menu.items[2].submenu.items[2].enabled = false
     }
     Menu.setApplicationMenu(menu)
-
 }
 
 app.on('ready', () => {
     createWindow()
     if (ELECTRON_ENV === 'publish') {
-        setTimeout(() => autoUpdater.checkForUpdates(), 1000)
+        setTimeout(() => {
+            autoUpdater.checkForUpdates()
+        }, 1000)
     }
 })
 
@@ -136,7 +139,7 @@ app.on('activate', () => {
 // AUTOUPDATE
 ipcMain.on('restart_app', () => autoUpdater.quitAndInstall())
 
-function sendUpdateStatusToWindow(options: { text: string, isRestartButton?: boolean, isCloseButton?: boolean, autoCloseWindow?: boolean }) {
+function sendUpdateStatusToWindow(options: { text: string, isRestartButton?: boolean, isCloseButton?: boolean, autoCloseWindow?: boolean }): void {
     win.webContents.send('message', { text: options.text, isRestartButton: options.isRestartButton || false, isCloseButton: options.isCloseButton !== undefined ? options.isCloseButton : true, autoCloseWindow: options.autoCloseWindow || false })
 }
 

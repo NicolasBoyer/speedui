@@ -1,6 +1,8 @@
+/* eslint-disable no-irregular-whitespace */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { ipcRenderer } = require('electron')
 
-const style = document.createElement("style")
+const style = document.createElement('style')
 style.innerHTML = `#notification {
     position: fixed;
     bottom: 20px;
@@ -16,40 +18,41 @@ style.innerHTML = `#notification {
     display: none;
 }`
 document.head.appendChild(style)
-const container = document.createElement("div")
-container.id = "notification"
-container.classList.add("hidden")
-const message = document.createElement("p")
+const container = document.createElement('div')
+container.id = 'notification'
+container.classList.add('hidden')
+const message = document.createElement('p')
 container.appendChild(message)
-const closeButton = document.createElement("button")
-closeButton.innerHTML = "Fermer"
-closeButton.classList.add("hidden")
-closeButton.onclick = () => container.classList.add("hidden")
+const closeButton = document.createElement('button')
+closeButton.innerHTML = 'Fermer'
+closeButton.classList.add('hidden')
+closeButton.onclick = () => container.classList.add('hidden')
 container.appendChild(closeButton)
-const restartButton = document.createElement("button")
-restartButton.classList.add("hidden")
+const restartButton = document.createElement('button')
+restartButton.classList.add('hidden')
 restartButton.onclick = () => ipcRenderer.send('restart_app')
-restartButton.innerHTML = "Redémarrer"
+restartButton.innerHTML = 'Redémarrer'
 container.appendChild(restartButton)
 document.body.appendChild(container)
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function showInfos(options) {
     let timer
-    container.classList.remove("hidden")
+    container.classList.remove('hidden')
     message.innerHTML = options.text
-    if (options.isRestartButton) restartButton.classList.remove("hidden")
-    if (options.isCloseButton) closeButton.classList.remove("hidden")
+    if (options.isRestartButton) restartButton.classList.remove('hidden')
+    if (options.isCloseButton) closeButton.classList.remove('hidden')
     if (options.autoCloseWindow) {
         timer = setTimeout(() => {
-            container.classList.add("hidden")
+            container.classList.add('hidden')
             clearTimeout(timer)
         }, 1000)
     }
 }
 
-ipcRenderer.on('message', (event, options) => showInfos(options))
+ipcRenderer.on('message', (_event, options) => showInfos(options))
 
-ipcRenderer.on('show_about', (event, arg) => {
+ipcRenderer.on('show_about', (_event, arg) => {
     const style = document.createElement('style')
     style.innerHTML = `.about {
     position: fixed;
@@ -93,7 +96,7 @@ ipcRenderer.on('show_about', (event, arg) => {
     document.head.appendChild(style)
     const about = document.createElement('div')
     about.classList.add('about')
-    about.addEventListener("click", () => document.body.removeChild(about))
+    about.addEventListener('click', () => document.body.removeChild(about))
     const background = document.createElement('div')
     background.classList.add('background')
     about.appendChild(background)

@@ -1,0 +1,86 @@
+{
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "./tsconfig.json"
+    },
+    "plugins": ["@typescript-eslint"],
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    ],
+    "rules": {
+        "no-caller": 2,
+        "no-eval": 2,
+        "new-parens": 2,
+        "no-bitwise": 2,
+        "no-cond-assign": 2,
+        "no-console": 1,
+        "comma-dangle": ["error", "never"],
+        "quotes": [2, "single", {
+            "avoidEscape": true
+        }],
+        "semi": [2, "never"],
+        "@typescript-eslint/naming-convention": ["error", {
+                "selector": "default",
+                "format": ["camelCase"],
+                "leadingUnderscore": "allow"
+            },
+            {
+                "selector": "variable",
+                "format": ["camelCase"],
+                "leadingUnderscore": "allow"
+            },
+            {
+                "selector": "parameter",
+                "format": ["camelCase"],
+                "leadingUnderscore": "allow"
+            },
+            {
+                "selector": "memberLike",
+                "modifiers": ["private"],
+                "format": ["camelCase"],
+                "leadingUnderscore": "require"
+            },
+            {
+                "selector": "memberLike",
+                "modifiers": ["protected"],
+                "format": ["camelCase"],
+                "leadingUnderscore": "allow"
+            },
+            {
+                "selector": "typeLike",
+                "format": ["PascalCase"]
+            }
+        ],
+        "max-len": 0,
+        "symbol-description": 0,
+        "no-prototype-builtins": 0,
+        "no-return-assign": 0,
+        "@typescript-eslint/explicit-member-accessibility": "off",
+        "@typescript-eslint/interface-name-prefix": ["error", {
+            "prefixWithI": "always"
+        }],
+        "@typescript-eslint/member-delimiter-style": ["error", {
+            "multiline": {
+                "delimiter": "none"
+            },
+            "singleline": {
+                "delimiter": "comma",
+                "requireLast": false
+            }
+        }],
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/explicit-function-return-type": ["warn", {
+            "allowExpressions": true
+        }],
+        "@typescript-eslint/no-namespace": ["error", {
+            "allowDeclarations": true
+        }],
+        "@typescript-eslint/type-annotation-spacing": "off",
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars-experimental": "warn"
+    }
+}
